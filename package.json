@@ -5,6 +5,7 @@
     "todomvc-common": "^1.0.0"
   },
   "devDependencies": {
+    "lit-html": "^0.7.1",
     "ramda": "^0.25.0",
     "rxjs": "^5.5.2"
   }
