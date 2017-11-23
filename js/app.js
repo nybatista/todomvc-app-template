@@ -7,19 +7,35 @@
 	new Spyne();
 
 	class App extends Spyne.ViewStream {
-
 		constructor(opts={}){
 			console.log("opts is ",opts);
 			super(opts);
 			this.afterRender();
+		}
+		broadcastEvents(){
+			return [
+
+				['.new-todo', 'keyup']
+
+			]
+
 		}
 		afterRender(){
 			console.log("after render app ",this.settings);
 			let logger = x => { console.log('x is ',x); }
 			this.getChannel("MODEL")
 				.subscribe(logger);
+
+/*
+			this.getChannel("UI")
+				.subscribe(x=>console.log('x is ',x));*/
+
+			new Spyne.ViewStreamBroadcaster(this.settings,this.broadcastEvents);
 		}
 	}
+
+
+
 
 	Spyne.registerChannel("MODEL", new TodosModel());
 	new App({
@@ -27,17 +43,6 @@
 	});
 
 
+
 })(window);
-
-/*
-	var todosTmpl = document.querySelector('#test-li');
-
-	const data = {
-		label: 'tater',
-		val: 'tot'
-	};
-	var myView = new spyne.DomItem('div', {}, data, todosTmpl);
-	document.body.appendChild(myView.render());
-*/
-
 
