@@ -68,37 +68,6 @@
 			<p>Created by <a href="http://todomvc.com">you</a></p>
 			<p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
 		</footer>
-		<script>
-			window.runFn = (str, data) => {
-				console.log("UBU ", str, a1, a2);
-			}
-
-
-			const myFunction = () => {
-				return 'Returned from myFunction!';
-			};
-
-			const templateResult = `Function expression in template: ${() => myFunction()}`;
-			console.log(templateResult); //Outputs -> Function expression in template: () => myFunction()
-
-			const myTag = (literals, func) => {
-				return literals[0] + func();
-			};
-
-			const taggedResult = myTag `Function expression in template: ${() => myFunction()}`;
-			console.log(taggedResult); //Outputs -> Function expression in template: Returned from myFunction!
-
-
-			console.log('yasdfads af');
-
-		</script>
-		<template id="tester">
-			<section class=runFn('yaya')>
-			<h1>runFn('my text here')</h1>
-			<div>testing</div>
-			</section>
-		</template>
-
 
 		<script id="test-li" type="x-spyne-template">
 			<li>
