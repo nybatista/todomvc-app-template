@@ -1,4 +1,4 @@
- class TodosModel extends Spyne.ChannelsBase {
+ class TodosModel extends spyne.ChannelsBase {
 	constructor(){
 
 
@@ -7,7 +7,7 @@
 		this.counterVal = 0;
 
 
-		this.observer$ = new Rx.BehaviorSubject(this.getCounterData());
+		this.observer$ = new Rx.BehaviorSubject(this.getStorageItems());
 
 		this.settings.name = 'MODEL';
 /*
@@ -19,6 +19,12 @@
 */
 
 	}
+
+	getStorageItems(){
+		return JSON.parse(localStorage.getItem('yayu'));
+	}
+
+
 
 
 	onObserversCallback(p){
