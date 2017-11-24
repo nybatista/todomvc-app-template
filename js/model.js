@@ -16,14 +16,14 @@
 
 		this.ENTER_KEY = 13;
 
-		let filterKey = e => e.keyCode===this.ENTER_KEY;
+		let isEnterKey = R.propEq('keyCode', this.ENTER_KEY);
+		let valIsNotNull =  R.pathSatisfies(str => str.length >= 1, ['target','value']);
+		let filterKeys = R.allPass([isEnterKey, valIsNotNull]);
+
 		this.uiChannel$ = this.getChannel("UI")
 			.map(evt=>evt.mouse)
-			.filter(filterKey)
-		//.do((p)=>console.log("counter ui data is ",p))
-			//.filter((p)=>p.data.type==="COUNTER_UPDATE")
+			.filter(filterKeys)
 			.subscribe((p)=>this.onInputEntered(p));
-
 
 	}
 
@@ -53,14 +53,11 @@
 	}
 
 	getStorageItems(){
-		return JSON.parse(localStorage.getItem(this.STORAGE_KEY));
+		 return JSON.parse(localStorage.getItem(this.STORAGE_KEY)) || {};
 	}
 	getHighestIdNum(){
-		const diff = (a,b) => b - a;
-		const sorter = R.sort(diff);
-		const getNum = s => parseInt(s);
-		const getHighNum = R.compose(getNum,R.head,R.sort(diff), R.pluck('id'));
-		return getHighNum(this.localStorageObj);
+		const getNum =  R.compose(R.defaultTo(0), parseInt, R.last, R.pluck('id'));
+		return getNum(this.localStorageObj);
 	}
 
 
