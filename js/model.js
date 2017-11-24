@@ -6,11 +6,22 @@
 
 		this.STORAGE_KEY = 'todos-yaya';
 
+		this.actions = {
+			INIT_TODOS_EVENT   :  'INIT_TODOS_EVENT',
+			ADD_TODO_EVENT     :  'ADD_TODO_EVENT',
+			REMOVE_TODO_EVENT  :  'REMOVE_TODO_EVENT',
+			UPDATE_TODOS_EVENT :  'UPDATE_TODOS_EVENT'
+		};
+
 		this.localStorageObj = this.getStorageItems();
 		this.idIter = this.getHighestIdNum();
 		console.log('id iter  = ',this.idIter);
 
-		this.observer$ = new Rx.BehaviorSubject(this.localStorageObj);
+		this.observer$ = new Rx.BehaviorSubject(
+			{
+				action: 'INIT_TODOS_EVENT',
+				payload: this.localStorageObj
+			});
 
 		this.settings.name = 'MODEL';
 
@@ -28,11 +39,7 @@
 	}
 
 	onInputEntered(evt){
-		let val = evt.target.value;
-		if (val.length>=1){
-			this.addTodoObject(val);
-		}
-		console.log("input enterered ",val);
+		this.addTodoObject( evt.target.value);
 	}
 
 	getNextId(){
@@ -43,13 +50,22 @@
 
 	}
 
+
+
 	addTodoObject(val){
 		let obj = {
 			id: this.getNextId(),
 			title: val,
 			completed: false
 		};
-		console.log("TODO OBJ IS ",obj);
+
+		this.onSendStream('ADD_TODO_EVENT', obj);
+	}
+
+	onSendStream(a, o){
+		let action = this.actions[a];
+		let payload = o;
+		this.observer$.next({action, payload});
 	}
 
 	getStorageItems(){
