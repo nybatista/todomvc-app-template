@@ -2,7 +2,7 @@
   "private": true,
   "dependencies": {
     "todomvc-app-css": "^2.0.0",
-    "todomvc-common": "^1.0.0"
+    "todomvc-common": "^1.0.4"
   },
   "devDependencies": {
     "lit-html": "^0.7.1",

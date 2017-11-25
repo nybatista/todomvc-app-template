@@ -4,7 +4,7 @@
 
 		super();
 
-		this.STORAGE_KEY = 'todos-yaya';
+		this.STORAGE_KEY = 'todos-yaya3';
 
 		this.actions = {
 			INIT_TODOS_EVENT   :  'INIT_TODOS_EVENT',
@@ -14,6 +14,7 @@
 		};
 
 		this.localStorageObj = this.getStorageItems();
+		window.localObj = this.localStorageObj;
 		this.idIter = this.getHighestIdNum();
 		console.log('id iter  = ',this.idIter);
 
@@ -59,6 +60,19 @@
 			completed: false
 		};
 
+		function replacer(key, value) {
+			// Filtering out properties
+			/*if (typeof value === 'string') {
+				return undefined;
+			}*/
+			return value;
+		}
+
+
+		//this.setStorage(this.localStorageObj.push(obj));
+		let arr1 = this.localStorageObj.push(obj);
+		console.log("STORAGE ",typeof(this.localStorageObj), JSON.stringify(obj, replacer), obj);
+
 		this.onSendStream('ADD_TODO_EVENT', obj);
 	}
 
@@ -69,16 +83,17 @@
 	}
 
 	getStorageItems(){
-		 return JSON.parse(localStorage.getItem(this.STORAGE_KEY)) || {};
+		 return JSON.parse(localStorage.getItem(this.STORAGE_KEY)) || this.setStorage();
 	}
 	getHighestIdNum(){
 		const getNum =  R.compose(R.defaultTo(0), parseInt, R.last, R.pluck('id'));
 		return getNum(this.localStorageObj);
 	}
 
-
-
-
+	setStorage(obj=[]) {
+			localStorage.setItem(this.STORAGE_KEY, JSON.stringify(obj));
+			return obj;
+	}
 	onObserversCallback(p){
 
 		console.log('the val is ',p);
