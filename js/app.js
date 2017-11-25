@@ -14,7 +14,8 @@
 		}
 		broadcastEvents(){
 			return [
-				['.new-todo', 'keyup']
+				['.new-todo', 'keyup'],
+				['#toggle-all', 'click']
 			]
 		}
 
@@ -42,8 +43,13 @@
 			} else if (action === "ADD_TODO_EVENT"){
 				this.addTodo(payload);
 				this.clearInput();
+				this.sendEventsDownStream(action,p);
+
 			}
-			console.log("TODO EVT ", action, payload)
+			//this.sendEventsDownStream(action, {});
+			console.log("ACTION STRING ",action);
+
+			console.log("TODO EVT ", action, p,this)
 		}
 		afterRender(){
 			this.getChannel("MODEL")

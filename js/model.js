@@ -32,15 +32,37 @@
 		let valIsNotNull =  R.pathSatisfies(str => str.length >= 1, ['target','value']);
 		let filterKeys = R.allPass([isEnterKey, valIsNotNull]);
 
-		this.uiChannel$ = this.getChannel("UI")
+		this.uiChannel$ = this.getChannel("UI");
+
+		const [i$, u$] = this.uiChannel$.partition(evt => evt.data.type === "todos-input");
+
+		let input$ = i$
+			.do((evt)=>console.log('p and m ',evt.data))
 			.map(evt=>evt.mouse)
-			.filter(filterKeys)
-			.subscribe((p)=>this.onInputEntered(p));
+			.filter(filterKeys);
+
+		let ui$ = u$
+			.map(evt=>{
+				console.log('evt val is ',evt.data, evt.mouse.target.checked);
+				return evt;
+			});
+
+
+
+		let subscriber$ = Rx.Observable.merge(input$,ui$)
+			.subscribe(p=>console.log("MERGED ",p));
+
+
+
+
+
+
+			//.subscribe((p)=>this.onInputEntered(p));
 
 	}
 
 	onInputEntered(evt){
-		this.addTodoObject( evt.target.value);
+		this.addTodoObject( R.trim(evt.target.value));
 	}
 
 	getNextId(){
@@ -60,19 +82,11 @@
 			completed: false
 		};
 
-		function replacer(key, value) {
-			// Filtering out properties
-			/*if (typeof value === 'string') {
-				return undefined;
-			}*/
-			return value;
-		}
-
 
 		//this.setStorage(this.localStorageObj.push(obj));
-		let arr1 = this.localStorageObj.push(obj);
-		console.log("STORAGE ",typeof(this.localStorageObj), JSON.stringify(obj, replacer), obj);
-
+		this.localStorageObj.push(obj);
+		console.log("STORAGE ",typeof(this.localStorageObj), JSON.stringify(obj), obj);
+		this.setStorage(this.localStorageObj);
 		this.onSendStream('ADD_TODO_EVENT', obj);
 	}
 
