@@ -3,6 +3,7 @@
 
 
 		super();
+		this.settings.name = 'MODEL';
 
 		this.STORAGE_KEY = 'todos-yaya3';
 
@@ -24,33 +25,39 @@
 				payload: this.localStorageObj
 			});
 
-		this.settings.name = 'MODEL';
 
 		this.ENTER_KEY = 13;
 
-		let isEnterKey = R.propEq('keyCode', this.ENTER_KEY);
-		let valIsNotNull =  R.pathSatisfies(str => str.length >= 1, ['target','value']);
-		let filterKeys = R.allPass([isEnterKey, valIsNotNull]);
+		let isEnterKey = R.pathEq(['mouse','keyCode'], this.ENTER_KEY);
+		let valIsNotNull =  R.pathSatisfies(str => str.length >= 1, ['mouse','target','value']);
+		let filterInput = R.allPass([isEnterKey, valIsNotNull]);
 
-		this.uiChannel$ = this.getChannel("UI");
+		//this.uiChannel$ = this.getChannel("UI");
 
-		const [i$, u$] = this.uiChannel$.partition(evt => evt.data.type === "todos-input");
+		const [inputSrc$, uiSrc$] = this.getChannel("UI").partition(evt => evt.data.type === "todos-input");
 
-		let input$ = i$
-			.do((evt)=>console.log('p and m ',evt.data))
-			.map(evt=>evt.mouse)
-			.filter(filterKeys);
+		let input$ = inputSrc$
+			.do((evt)=>console.log('p and m ',evt, R.path(['mouse','target','value'], evt)))
+			//.map(evt=>evt.mouse)
+			.filter(filterInput);
 
-		let ui$ = u$
+		let ui$ = uiSrc$
 			.map(evt=>{
-				console.log('evt val is ',evt.data, evt.mouse.target.checked);
+				console.log('evt val is ',evt.data, evt.mouse.target);
 				return evt;
 			});
 
 
 
 		let subscriber$ = Rx.Observable.merge(input$,ui$)
-			.subscribe(p=>console.log("MERGED ",p));
+			.subscribe(evt => {
+				let cList = { classList : evt.mouse.target.classList[0]};
+			 let obj =Object.assign({},evt.data, cList, R.pickAll(['value', 'checked'],evt.mouse.target))
+
+				console.log(' --- ',evt," MERGED ",obj);
+			// window.theObj = obj;
+
+			});
 
 
 

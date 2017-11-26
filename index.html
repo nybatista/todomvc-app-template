@@ -72,14 +72,12 @@
 		</footer>
 
 		<script class="todo-tmpl" type="x-spyne-template">
-			<li>
-				<div class="view">
+				<div class="view" data-type='todo-item' data-id="{{id}}" >
 					<input class="toggle" type="checkbox">
 					<label>{{title}}</label>
 					<button class="destroy"></button>
 				</div>
 				<input class="edit" value="{{title}}">
-			</li>
 
 		</script>
 		<!-- Scripts here. Don't remove ↓ -->
