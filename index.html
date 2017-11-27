@@ -73,11 +73,11 @@
 
 		<script class="todo-tmpl" type="x-spyne-template">
 				<div class="view" data-type='todo-item' data-id="{{id}}" >
-					<input class="toggle" type="checkbox">
+					<input data-id="{{id}}" data-type="toggle-completed" class="toggle" type="checkbox">
 					<label>{{title}}</label>
-					<button class="destroy"></button>
+					<button data-id="{{id}}" data-type='destroy' class="destroy"></button>
 				</div>
-				<input class="edit" value="{{title}}">
+				<input data-id="{{id}}" class="edit" value="{{title}}">
 
 		</script>
 		<!-- Scripts here. Don't remove ↓ -->

@@ -5,7 +5,7 @@
 		super();
 		this.settings.name = 'MODEL';
 
-		this.STORAGE_KEY = 'todos-yaya3';
+		this.STORAGE_KEY = 'todos-yaya';
 
 		this.actions = {
 			INIT_TODOS_EVENT   :  'INIT_TODOS_EVENT',

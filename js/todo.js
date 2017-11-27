@@ -13,7 +13,14 @@ class Todo extends spyne.ViewStream  {
 
 	broadcastEvents(){
 		return [
-			['div', 'dblClick']
+			['div', 'dblClick'],
+			['input.edit', 'keyup'],
+			['input.toggle', 'click'],
+			['button.destroy', 'click']
+
+
+
+
 		]
 	}
 
@@ -28,9 +35,27 @@ class Todo extends spyne.ViewStream  {
 		console.log("todos in TODO is ",p,this.id,this.title);
 	}
 
+	changeEditState(bool=false) {
+	/*	 if (bool === true) {
+			 this.settings.el.classList.add('editing')
+		 } else {
+			 this.settings.el.classList.remove('editing')
+		 }*/
+		this.settings.el.classList.toggle('editing');
+		 window.theEl = this.settings.el;
+	}
+
 	afterRender(){
-		this.settings.el.classList.add('editieng');
-		//this.settings.el.dataset['num'] = Math.random();
+		//this.settings.el.classList.add('editieng');
+		//console.log(" after render ",this.settings.id);
+
+		let filterLocalUIEvents = p => p.data.cid === this.settings.id && p.data.event === 'dblClick';
+
+		this.getChannel('UI')
+			// .do(x => console.log(x))
+			.filter(filterLocalUIEvents)
+			.subscribe((p) =>this.changeEditState(true));
+
 
 	}
 

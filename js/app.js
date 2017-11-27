@@ -54,6 +54,12 @@
 		afterRender(){
 			this.getChannel("MODEL")
 				.subscribe(p => this.onModelAction(p));
+
+
+			this.getChannel("ROUTE")
+				.subscribe(x => console.log("ROUTE ",x));
+
+
 			new Spyne.ViewStreamBroadcaster(this.settings,this.broadcastEvents);
 		}
 	}
