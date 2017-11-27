@@ -58,10 +58,14 @@
 				let allTranform =  R.map(transforms);
 
 
+				let completedLens = R.lens(R.prop('completed'), R.assoc('completed'));
+				let fn = R.map(R.set(completedLens, toggleBool));
+
+
 				let toggleFn = toggleAll === true  ? allTranform : itemTransform
 
-				let updatedLocalObj = toggleFn(R.clone(this.localStorageObj));
-				console.log("toggle type is 1 ",updatedLocalObj,toggleAll, R.difference(this.localStorageObj,updatedLocalObj));
+				let updatedLocalObj = fn(R.clone(this.localStorageObj));
+				console.log("toggle type is 1 ",updatedLocalObj,toggleAll, R.difference(updatedLocalObj,this.localStorageObj));
 				return p;
 			});
 
