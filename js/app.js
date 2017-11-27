@@ -15,7 +15,8 @@
 		broadcastEvents(){
 			return [
 				['.new-todo', 'keyup'],
-				['#toggle-all', 'click']
+				['#toggle-all', 'click'],
+				['button.clear-completed', 'click']
 			]
 		}
 
@@ -34,6 +35,10 @@
 		}
 		clearInput(){
 			this.settings.el.querySelector('.new-todo').value="";
+		}
+		updateCount() {
+			const count = document.querySelectorAll('.todo-list li:not(.completed)').length;
+			this.todoCountEl.textContent = count;
 		}
 
 		onModelAction(p){
@@ -59,6 +64,8 @@
 			this.getChannel("ROUTE")
 				.subscribe(x => console.log("ROUTE ",x));
 
+
+			this.todoCountEl = document.querySelector('span.todo-count strong');
 
 			new Spyne.ViewStreamBroadcaster(this.settings,this.broadcastEvents);
 		}
