@@ -41,15 +41,47 @@
 			//.map(evt=>evt.mouse)
 			.filter(filterInput);
 
+
+		let filterToggles = R.pathSatisfies(R.contains('toggle'), ['data','type']);
+		this.toggleBool = false;
+		let destroyFilter = R.pathEq(['data','type'], 'destroy');
+
+
+
+		let toggleCompleted$ = uiSrc$
+			.filter(filterToggles)
+			.map(p=>{
+				const toggleAll = R.pathEq(['data','type'], 'toggle-all')(p);
+				const toggleBool = toggleAll === true ? this.toggleBool = !this.toggleBool : p.mouse.target.checked;
+				let transforms = R.evolve({completed: x=>toggleBool});
+				let itemTransform = R.compose(transforms, R.find(R.propEq(['id'], p.data.id)));
+				let allTranform =  R.map(transforms);
+
+
+				let toggleFn = toggleAll === true  ? allTranform : itemTransform
+
+				let updatedLocalObj = toggleFn(R.clone(this.localStorageObj));
+				console.log("toggle type is 1 ",updatedLocalObj,toggleAll, R.difference(this.localStorageObj,updatedLocalObj));
+				return p;
+			});
+
+
+		let destroyCompleted$ = uiSrc$
+			.filter(destroyFilter);
+
+
+
+
+/*
 		let ui$ = uiSrc$
 			.map(evt=>{
 				console.log('evt val is ',evt.data, evt.mouse.target);
 				return evt;
-			});
+			});*/
 
 
 
-		let subscriber$ = Rx.Observable.merge(input$,ui$)
+		let subscriber$ = Rx.Observable.merge(input$, toggleCompleted$, destroyCompleted$)
 			.subscribe(evt => {
 				let cList = { classList : evt.mouse.target.classList[0]};
 			 let obj =Object.assign({},evt.data, cList, R.pickAll(['value', 'checked'],evt.mouse.target))
