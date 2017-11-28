@@ -74,11 +74,16 @@
 			return updateParamsInObj('completed', getCompletedAllItemsBool(), completedAllArr, obj);
 		};
 		const completedItemFn = (p,obj) => {
-			const val = getCompletedItemBool(p);
-			const arr = itemArr(p);
-			return updateParamsInObj('completed', val, arr, obj);
+			return updateParamsInObj('completed', getCompletedItemBool(p), itemArr(p), obj);
 		};
-		const destroyItemsFn = obj => {
+		const destroyItemFn = (p, obj) => {
+			const arr = destroyItemsArr(obj);
+			//const itemInArr = R.propSatisfies(R.contains(R.__, arr), 'id');
+			const item = R.propEq('id', p.data.id);
+			return R.reject(item, obj);
+		};
+
+		const destroyAllFn = (p, obj) => {
 			const arr = destroyItemsArr(obj);
 			const itemInArr = R.propSatisfies(R.contains(R.__, arr), 'id');
 			return R.reject(itemInArr, obj);
@@ -86,26 +91,20 @@
 		const titleItemFn = (p,obj) => {
 			const key = 'title';
 			const value = R.path(['mouse','target','value']);
-			//console.log("k v ",key,value, R.of(p.data.id));
-			return updateParamsInObj(key,value(p), p.data.id, obj);
+			return updateParamsInObj('title',value(p), p.data.id, obj);
 		};
 
 		const titleNewFn = (p, o) => {
-			//	console.log('p is ',p);
 			const title = p.mouse.target.value;
 			let newItemObj = {
 				id: this.getNextId(),
 				title,
 				completed: false
 			};
-
-			console.log('new Item ',newItemObj);
-
 			return R.append(newItemObj, o);
-
 		};
 
-		const fList = {completedAllFn, completedItemFn, destroyItemsFn, titleItemFn, titleNewFn};
+		const fList = {completedAllFn, completedItemFn, destroyItemFn, destroyAllFn, titleItemFn, titleNewFn};
 		console.log('function list ',fList, fList['completedAllFn']);
 
 
@@ -123,8 +122,9 @@
 				//let destroyItems = destroyItemsFn(obj);
 				//	console.log({completedAll, completedItem, destroyCompletedItems},' p is ',p);
 				//console.log('update title ',updateTitle(p,obj))
-				let newObj  = titleNewFn(p,obj);
-				console.log('p is ',p,newObj,fList[fnName](p,obj));
+				//let newObj  = titleNewFn(p,obj);
+				console.log("fn is ",fnName);
+				console.log('p is ',p,fList[fnName](p,obj));
 
 				return p;
 
@@ -132,32 +132,7 @@
 			.subscribe(evt=>evt);
 
 
-
-/*
-
-		let input$ = inputSrc$
-			.do((evt)=>console.log('p and m ',evt, R.path(['mouse','target','value'], evt)))
-			//.map(evt=>evt.mouse)
-			.filter(filterInput);
-
-
-
-
-
-		let subscriber$ = Rx.Observable.merge(input$)
-			.subscribe(evt => {
-				console.log(' --- ',evt," MERGED ",evt);
-			// window.theObj = obj;
-
-			});
-*/
-
-
-
-
-
-
-			//.subscribe((p)=>this.onInputEntered(p));
+		
 
 	}
 
