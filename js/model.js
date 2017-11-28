@@ -29,6 +29,8 @@
 
 		this.ENTER_KEY = 13;
 
+		const camelCase = (str) => str.replace(/[-_]([a-z])/g, (m) => m[1].toUpperCase());
+
 		let isEnterKey = R.pathEq(['mouse','keyCode'], this.ENTER_KEY);
 		let inputIsNotEmpty =  R.pathSatisfies(R.complement(R.isEmpty), ['mouse','target','value']);
 		let filterInputValue = R.allPass([isEnterKey, inputIsNotEmpty]);
@@ -68,25 +70,51 @@
 
 
 
-		const completedAllFn = updateParamsInObj('completed', R.__, completedAllArr);
-		const completedItemFn = updateParamsInObj('completed');
+		const completedAllFn = (p,obj) => {
+			return updateParamsInObj('completed', getCompletedAllItemsBool(), completedAllArr, obj);
+		};
+		const completedItemFn = (p,obj) => {
+			const val = getCompletedItemBool(p);
+			const arr = itemArr(p);
+			return updateParamsInObj('completed', val, arr, obj);
+		};
 		const destroyItemsFn = obj => {
 			const arr = destroyItemsArr(obj);
 			const itemInArr = R.propSatisfies(R.contains(R.__, arr), 'id');
 			return R.reject(itemInArr, obj);
 		};
-		const updateTitle = (p,obj) => {
+		const titleItemFn = (p,obj) => {
 			const key = 'title';
 			const value = R.path(['mouse','target','value']);
 			//console.log("k v ",key,value, R.of(p.data.id));
 			return updateParamsInObj(key,value(p), p.data.id, obj);
 		};
 
+		const titleNewFn = (p, o) => {
+			//	console.log('p is ',p);
+			const title = p.mouse.target.value;
+			let newItemObj = {
+				id: this.getNextId(),
+				title,
+				completed: false
+			};
+
+			console.log('new Item ',newItemObj);
+
+			return R.append(newItemObj, o);
+
+		};
+
+		const fList = {completedAllFn, completedItemFn, destroyItemsFn, titleItemFn, titleNewFn};
+		console.log('function list ',fList, fList['completedAllFn']);
+
 
 		this.ui$ = this.getChannel("UI")
 			.filter(filterUIElements)
 			.map(p=>{
 				const obj = this.localStorageObj;
+
+				let fnName = camelCase(p.data.type)+"Fn";
 
 				//let newObj = updateParamsInObj('completed', 'yaya is here a title ',destroyItemsArr, obj);
 				//let completedAll = completedAllFn(getCompletedAllItemsBool(), obj);
@@ -95,7 +123,8 @@
 				//let destroyItems = destroyItemsFn(obj);
 				//	console.log({completedAll, completedItem, destroyCompletedItems},' p is ',p);
 				//console.log('update title ',updateTitle(p,obj))
-				console.log('p is ',p);
+				let newObj  = titleNewFn(p,obj);
+				console.log('p is ',p,newObj,fList[fnName](p,obj));
 
 				return p;
 
@@ -139,7 +168,8 @@
 	getNextId(){
 		const padMaxNum = 6;
 		this.idIter++;
-		const padNum = padMaxNum - this.idIter.length;
+		const padNum = padMaxNum - String(this.idIter).length;
+		console.log('id is ',padNum,padMaxNum,String(this.idIter).length);
 		return String('0').repeat(padNum)+this.idIter;
 
 	}
