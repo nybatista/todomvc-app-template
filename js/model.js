@@ -72,22 +72,23 @@
 		let mouseInputValueFn = p => p.mouse.target.value;
 
 
-		const createFillObj =  (key, value, arr, obj) => ({ key, value, arr, obj });
+		const todoParams =  (key, value, arr, obj) => ({ key, value, arr, obj });
 
-		const completedAllParams = (p,o) => createFillObj('completed', getCompletedAllItemsBool(), completedAllArr(o), o);
-		const completedItemParams = (p,o) => createFillObj('completed', getCompletedItemBool(p), R.of(itemArr(p)), o);
-		const destroyItemParams = (p,o) => createFillObj('destroy', undefined,  R.of(itemArr(p)), o);
-		const destroyAllParams = (p,o) => createFillObj('destroy',undefined, destroyItemsArr(o), o);
-		const titleItemParams = (p,o) => createFillObj('title', mouseInputValueFn(p), itemArr(p), o);
-		const titleNewParams = (p,o) => createFillObj('title', mouseInputValueFn(p), this.getNextId(), o);
+		const completedAllParams = (p,o) => updateParamsInObj(todoParams('completed', getCompletedAllItemsBool(), completedAllArr(o), o));
+		const completedItemParams = (p,o) => updateParamsInObj(todoParams('completed', getCompletedItemBool(p), R.of(itemArr(p)), o));
+		const destroyItemParams = (p,o) => destroyItemFn(todoParams('destroy', undefined,  R.of(itemArr(p)), o));
+		const destroyAllParams = (p,o) => destroyItemFn(todoParams('destroy',undefined, destroyItemsArr(o), o));
+		const titleItemParams = (p,o) => updateParamsInObj(todoParams('title', mouseInputValueFn(p), itemArr(p), o));
+		const titleNewParams = (p,o) => titleNewFn(todoParams('title', mouseInputValueFn(p), this.getNextId(), o));
 
 
 
-		const completedAllFn = (params) =>  updateParamsInObj(params);
-		const completedItemFn = (params) =>	 updateParamsInObj(params)
+		//const completedAllFn = (params) =>  updateParamsInObj(params);
+		//const completedItemFn = (params) =>	 updateParamsInObj(params)
+		//const titleItemFn = (params) =>   updateParamsInObj(params);
+		//const destroyAllFn = (params) =>  R.reject(R.propSatisfies(R.contains(R.__, params.arr), 'id'), params.obj);
+
 		const destroyItemFn = (params)  =>  R.reject(R.propSatisfies(R.contains(R.__, params.arr), 'id'), params.obj);
-		const destroyAllFn = (params) =>  R.reject(R.propSatisfies(R.contains(R.__, params.arr), 'id'), params.obj);
-		const titleItemFn = (params) =>   updateParamsInObj(params);
 
 		const titleNewFn = (params) => {
 			const title = params.value;
@@ -99,29 +100,29 @@
 			return R.append(newItemObj, params.obj);
 		};
 
-		const fList = {completedAllFn, completedItemFn, destroyItemFn, destroyAllFn, titleItemFn, titleNewFn};
+		//const fList = {completedAllFn, completedItemFn, destroyItemFn, destroyAllFn, titleItemFn, titleNewFn};
 
 		const fParamsList = {completedAllParams, completedItemParams, destroyItemParams, destroyAllParams, titleItemParams, titleNewParams};
-		console.log('function list ',fList, fList['completedAllFn']);
+		//console.log('function list ',fList, fList['completedAllFn']);
 
 
 		this.ui$ = this.getChannel("UI")
 			.filter(filterUIElements)
 			.map(p=>{
+				//const timeStamp = 'todo parsing';
+				//console.time(timeStamp);
 				const obj = this.localStorageObj;
 
-				let fnName = camelCase(p.data.type)+"Fn";
+				//let fnName = camelCase(p.data.type)+"Fn";
 				let paramsName = camelCase(p.data.type)+"Params";
 				let paramsFn = fParamsList[paramsName];
-				let objFn = fList[fnName];
+				let newObject = paramsFn(p,obj);
+				//console.log("the params ",theParams,paramsFn);
 
-				let theParams = paramsFn(p,obj);
-				console.log("the params ",theParams,paramsFn);
+				//let testObj = theParams;// objFn(theParams);
 
-				let testObj = objFn(theParams);
-
-				console.log('testObj ',testObj,p);
-
+				console.log('testObj ',newObject,p);
+				//console.timeEnd(timeStamp);
 
 
 				//let newObj = updateParamsInObj('completed', 'yaya is here a title ',destroyItemsArr, obj);
