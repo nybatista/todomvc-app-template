@@ -59,7 +59,7 @@
 
 
 				let completedLens = R.lens(R.prop('completed'), R.assoc('completed'));
-				let fn = R.map(R.set(completedLens, toggleBool));
+				let fn =R.set(completedLens, toggleBool);
 
 
 				let toggleFn = toggleAll === true  ? allTranform : itemTransform
@@ -71,6 +71,7 @@
 
 
 		let destroyCompleted$ = uiSrc$
+			.do(p=>console.log("p is ",p))
 			.filter(destroyFilter);
 
 

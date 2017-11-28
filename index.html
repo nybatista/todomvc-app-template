@@ -17,7 +17,7 @@
 			</header>
 			<!-- This section should be hidden by default and shown when there are todos -->
 			<section class="main">
-				<input data-channel="UI" data-type="toggle-all" id="toggle-all"  class="toggle-all" type="checkbox">
+				<input data-channel="UI" data-type="completed-all" id="toggle-all"  class="toggle-all" type="checkbox">
 				<label data-channel="UI" for="toggle-all">Mark all as complete</label>
 				<ul class="todo-list">
 					<!-- These are here just to show the structure of the list items -->
@@ -73,11 +73,11 @@
 
 		<script class="todo-tmpl" type="x-spyne-template">
 				<div class="view" data-type='todo-item' data-id="{{id}}" >
-					<input data-id="{{id}}" data-type="toggle-completed" class="toggle" type="checkbox">
+					<input data-id="{{id}}" data-type="completed-item" class="toggle" type="checkbox">
 					<label>{{title}}</label>
-					<button data-id="{{id}}" data-type='destroy' class="destroy"></button>
+					<button data-id="{{id}}" data-type='destroy-item' class="destroy"></button>
 				</div>
-				<input data-id="{{id}}" data-type="todos-input" class="edit" value="{{title}}">
+				<input data-id="{{id}}" data-type="title-item" class="edit" value="{{title}}">
 
 		</script>
 		<!-- Scripts here. Don't remove ↓ -->
