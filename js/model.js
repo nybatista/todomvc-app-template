@@ -25,16 +25,86 @@
 				payload: this.localStorageObj
 			});
 
+		this.completedItemsBool = false;
 
 		this.ENTER_KEY = 13;
 
 		let isEnterKey = R.pathEq(['mouse','keyCode'], this.ENTER_KEY);
-		let valIsNotNull =  R.pathSatisfies(str => str.length >= 1, ['mouse','target','value']);
-		let filterInput = R.allPass([isEnterKey, valIsNotNull]);
+		let inputIsNotEmpty =  R.pathSatisfies(R.complement(R.isEmpty), ['mouse','target','value']);
+		let filterInputValue = R.allPass([isEnterKey, inputIsNotEmpty]);
+		const checkForBtnEvents = R.complement(R.pathSatisfies(R.startsWith('title'), ['data','type']));
 
-		//this.uiChannel$ = this.getChannel("UI");
+		const filterUIElements = R.either(checkForBtnEvents, filterInputValue);
+		//const [inputSrc$, uiSrc$] = this.getChannel("UI").partition(checkForInput);
 
-		const [inputSrc$, uiSrc$] = this.getChannel("UI").partition(evt => evt.data.type === "todos-input");
+		const getCompletedAllItemsBool = () => this.completedItemsBool = !this.completedItemsBool;
+		const getCompletedItemBool =  R.pathEq(['mouse','target','checked'], true);
+
+
+		// PULL ITEMS TO MUTATE
+		const completedAllArr = R.pluck('id');
+		const destroyItemsArr = R.compose(R.pluck('id'), R.filter(R.propEq('completed', true)));
+		const itemArr = R.path(['data','id']);
+
+
+		// BASE METHODS
+
+
+		const updateParamsInObj = R.curry((k,v, arrFn, obj) => {
+			let arr =  typeof(arrFn)==='string' ? arrFn : arrFn(obj);
+			//let arr = arrFn;
+			//console.log('typeof ',typeof(arrFn), arrFn)
+			const itemInArr = R.propSatisfies(R.contains(R.__, arr), 'id');
+			let propKey = k;
+			let propVal = v;
+			const updateParams = R.when(
+				itemInArr,
+				R.assoc(propKey, propVal),
+			);
+			return R.map(updateParams,obj);
+
+		});
+
+
+
+
+		const completedAllFn = updateParamsInObj('completed', R.__, completedAllArr);
+		const completedItemFn = updateParamsInObj('completed');
+		const destroyItemsFn = obj => {
+			const arr = destroyItemsArr(obj);
+			const itemInArr = R.propSatisfies(R.contains(R.__, arr), 'id');
+			return R.reject(itemInArr, obj);
+		};
+		const updateTitle = (p,obj) => {
+			const key = 'title';
+			const value = R.path(['mouse','target','value']);
+			//console.log("k v ",key,value, R.of(p.data.id));
+			return updateParamsInObj(key,value(p), p.data.id, obj);
+		};
+
+
+		this.ui$ = this.getChannel("UI")
+			.filter(filterUIElements)
+			.map(p=>{
+				const obj = this.localStorageObj;
+
+				//let newObj = updateParamsInObj('completed', 'yaya is here a title ',destroyItemsArr, obj);
+				//let completedAll = completedAllFn(getCompletedAllItemsBool(), obj);
+				//let completedItem = completedItemFn(getCompletedItemBool(p),itemArr(p),obj);
+				//let destroyCompletedItems = destroyItemsFn(obj);
+				//let destroyItems = destroyItemsFn(obj);
+				//	console.log({completedAll, completedItem, destroyCompletedItems},' p is ',p);
+				//console.log('update title ',updateTitle(p,obj))
+				console.log('p is ',p);
+
+				return p;
+
+			})
+			.subscribe(evt=>evt);
+
+
+
+/*
 
 		let input$ = inputSrc$
 			.do((evt)=>console.log('p and m ',evt, R.path(['mouse','target','value'], evt)))
@@ -42,59 +112,16 @@
 			.filter(filterInput);
 
 
-		let filterToggles = R.pathSatisfies(R.contains('toggle'), ['data','type']);
-		this.toggleBool = false;
-		let destroyFilter = R.pathEq(['data','type'], 'destroy');
 
 
 
-		let toggleCompleted$ = uiSrc$
-			.filter(filterToggles)
-			.map(p=>{
-				const toggleAll = R.pathEq(['data','type'], 'toggle-all')(p);
-				const toggleBool = toggleAll === true ? this.toggleBool = !this.toggleBool : p.mouse.target.checked;
-				let transforms = R.evolve({completed: x=>toggleBool});
-				let itemTransform = R.compose(transforms, R.find(R.propEq(['id'], p.data.id)));
-				let allTranform =  R.map(transforms);
-
-
-				let completedLens = R.lens(R.prop('completed'), R.assoc('completed'));
-				let fn =R.set(completedLens, toggleBool);
-
-
-				let toggleFn = toggleAll === true  ? allTranform : itemTransform
-
-				let updatedLocalObj = fn(R.clone(this.localStorageObj));
-				console.log("toggle type is 1 ",updatedLocalObj,toggleAll, R.difference(updatedLocalObj,this.localStorageObj));
-				return p;
-			});
-
-
-		let destroyCompleted$ = uiSrc$
-			.do(p=>console.log("p is ",p))
-			.filter(destroyFilter);
-
-
-
-
-/*
-		let ui$ = uiSrc$
-			.map(evt=>{
-				console.log('evt val is ',evt.data, evt.mouse.target);
-				return evt;
-			});*/
-
-
-
-		let subscriber$ = Rx.Observable.merge(input$, toggleCompleted$, destroyCompleted$)
+		let subscriber$ = Rx.Observable.merge(input$)
 			.subscribe(evt => {
-				let cList = { classList : evt.mouse.target.classList[0]};
-			 let obj =Object.assign({},evt.data, cList, R.pickAll(['value', 'checked'],evt.mouse.target))
-
-				console.log(' --- ',evt," MERGED ",obj);
+				console.log(' --- ',evt," MERGED ",evt);
 			// window.theObj = obj;
 
 			});
+*/
 
 
 
