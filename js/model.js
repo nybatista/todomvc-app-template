@@ -52,20 +52,23 @@
 		// BASE METHODS
 
 
-		const updateParamsInObj = R.curry((k,v, arrFn, obj) => {
-			let arr =  typeof(arrFn)==='string' ? arrFn : arrFn(obj);
+		const updateParamsInObj = (params) => {
+
+			//let arr =  typeof(arrFn)==='string' ? arrFn : arrFn(obj);
 			//let arr = arrFn;
 			//console.log('typeof ',typeof(arrFn), arrFn)
-			const itemInArr = R.propSatisfies(R.contains(R.__, arr), 'id');
-			let propKey = k;
-			let propVal = v;
+			console.log("params in upate ",params);
+			const itemInArr = R.propSatisfies(R.contains(R.__, params.arr), 'id');
+			let propKey = params.key;
+			let propVal = params.value;
 			const updateParams = R.when(
 				itemInArr,
 				R.assoc(propKey, propVal),
 			);
-			return R.map(updateParams,obj);
+			params.obj = R.map(updateParams,params.obj);
+			return params;
 
-		});
+		};
 		let mouseInputValueFn = p => p.mouse.target.value;
 
 
@@ -80,35 +83,20 @@
 
 
 
-		const completedAllFn = (p,obj) => {
-			return updateParamsInObj('completed', getCompletedAllItemsBool(), completedAllArr, obj);
-		};
-		const completedItemFn = (p,obj) => {
-			return updateParamsInObj('completed', getCompletedItemBool(p), itemArr(p), obj);
-		};
-		const destroyItemFn = (p, obj) => {
-			const item = R.propEq('id', p.data.id);
-			return R.reject(item, obj);
-		};
+		const completedAllFn = (params) =>  updateParamsInObj(params);
+		const completedItemFn = (params) =>	 updateParamsInObj(params)
+		const destroyItemFn = (params)  =>  R.reject(R.propSatisfies(R.contains(R.__, params.arr), 'id'), params.obj);
+		const destroyAllFn = (params) =>  R.reject(R.propSatisfies(R.contains(R.__, params.arr), 'id'), params.obj);
+		const titleItemFn = (params) =>   updateParamsInObj(params);
 
-		const destroyAllFn = (p, obj) => {
-			const arr = destroyItemsArr(obj);
-			const itemInArr = R.propSatisfies(R.contains(R.__, arr), 'id');
-			return R.reject(itemInArr, obj);
-		};
-		const titleItemFn = (p,obj) => {
-			const value = R.path(['mouse','target','value']);
-			return updateParamsInObj('title',value(p), p.data.id, obj);
-		};
-
-		const titleNewFn = (p, o) => {
-			const title = p.mouse.target.value;
+		const titleNewFn = (params) => {
+			const title = params.value;
 			let newItemObj = {
-				id: this.getNextId(),
+				id: params.arr,
 				title,
 				completed: false
 			};
-			return R.append(newItemObj, o);
+			return R.append(newItemObj, params.obj);
 		};
 
 		const fList = {completedAllFn, completedItemFn, destroyItemFn, destroyAllFn, titleItemFn, titleNewFn};
@@ -125,6 +113,16 @@
 				let fnName = camelCase(p.data.type)+"Fn";
 				let paramsName = camelCase(p.data.type)+"Params";
 				let paramsFn = fParamsList[paramsName];
+				let objFn = fList[fnName];
+
+				let theParams = paramsFn(p,obj);
+				console.log("the params ",theParams,paramsFn);
+
+				let testObj = objFn(theParams);
+
+				console.log('testObj ',testObj,p);
+
+
 
 				//let newObj = updateParamsInObj('completed', 'yaya is here a title ',destroyItemsArr, obj);
 				//let completedAll = completedAllFn(getCompletedAllItemsBool(), obj);
@@ -134,12 +132,14 @@
 				//	console.log({completedAll, completedItem, destroyCompletedItems},' p is ',p);
 				//console.log('update title ',updateTitle(p,obj))
 				//let newObj  = titleNewFn(p,obj);
-				console.log("fn is ",fnName);
-				console.log('p is ',paramsFn(p,obj), '---- ',p);
-				let o = fList[fnName](p,obj);
-				let a = 'UPDATE_TODOS_EVENT';
+				//console.log("fn is ",fnName);
+				//console.log('p is ',paramsFn(p,obj), '---- ',p);
+				//let o = fList[fnName](p,obj);
+				//let a = 'UPDATE_TODOS_EVENT';
 
-				return {a,o};
+				//return {a,o};
+
+				return p;
 
 			})
 			.subscribe(p => console.log(p));
