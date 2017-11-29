@@ -14,6 +14,15 @@
 			UPDATE_TODOS_EVENT :  'UPDATE_TODOS_EVENT'
 		};
 
+		this.paramActions = {
+			completed: 'UPDATE_TODOS_EVENT',
+			destroy: 'REMOVE_TODO_EVENT',
+			title: 'UPDATE_TODOS_EVENT',
+			titleNew: 'ADD_TODO_EVENT'
+
+
+		};
+
 		this.localStorageObj = this.getStorageItems();
 		window.localObj = this.localStorageObj;
 		this.idIter = this.getHighestIdNum();
@@ -66,6 +75,7 @@
 				R.assoc(propKey, propVal),
 			);
 			params.obj = R.map(updateParams,params.obj);
+			params['action'] = this.paramActions[params.key];
 			return params;
 
 		};
@@ -78,8 +88,8 @@
 		const completedItemParams = (p,o) => updateParamsInObj(todoParams('completed', getCompletedItemBool(p), R.of(itemArr(p)), o));
 		const destroyItemParams = (p,o) => destroyItemFn(todoParams('destroy', undefined,  R.of(itemArr(p)), o));
 		const destroyAllParams = (p,o) => destroyItemFn(todoParams('destroy',undefined, destroyItemsArr(o), o));
-		const titleItemParams = (p,o) => updateParamsInObj(todoParams('title', mouseInputValueFn(p), itemArr(p), o));
-		const titleNewParams = (p,o) => titleNewFn(todoParams('title', mouseInputValueFn(p), this.getNextId(), o));
+		const titleItemParams = (p,o) => updateParamsInObj(todoParams('title', mouseInputValueFn(p), R.of(itemArr(p)), o));
+		const titleNewParams = (p,o) => titleNewFn(todoParams('titleNew', mouseInputValueFn(p), this.getNextId(), o));
 
 
 
@@ -88,7 +98,13 @@
 		//const titleItemFn = (params) =>   updateParamsInObj(params);
 		//const destroyAllFn = (params) =>  R.reject(R.propSatisfies(R.contains(R.__, params.arr), 'id'), params.obj);
 
-		const destroyItemFn = (params)  =>  R.reject(R.propSatisfies(R.contains(R.__, params.arr), 'id'), params.obj);
+		const destroyItemFn = (params)  =>  {
+
+			params.obj = R.reject(R.propSatisfies(R.contains(R.__, params.arr), 'id'), params.obj)
+			params['action'] = this.paramActions[params.key];
+			return params;
+
+		};
 
 		const titleNewFn = (params) => {
 			const title = params.value;
@@ -97,7 +113,10 @@
 				title,
 				completed: false
 			};
-			return R.append(newItemObj, params.obj);
+
+			params.obj = R.append(newItemObj, params.obj);
+			params['action'] = this.paramActions[params.key];
+			return params;
 		};
 
 		//const fList = {completedAllFn, completedItemFn, destroyItemFn, destroyAllFn, titleItemFn, titleNewFn};
@@ -117,11 +136,21 @@
 				let paramsName = camelCase(p.data.type)+"Params";
 				let paramsFn = fParamsList[paramsName];
 				let newObject = paramsFn(p,obj);
+
+				let eventParams = ['key','value','arr','action'];
+
+				const parsedObj = {
+					event: R.pick(eventParams)(newObject),
+					obj: R.omit(eventParams)(newObject)
+
+				};
 				//console.log("the params ",theParams,paramsFn);
 
 				//let testObj = theParams;// objFn(theParams);
 
-				console.log('testObj ',newObject,p);
+				window.objF = newObject;
+
+				console.log('parsed obj ',parsedObj,' ----> ',p);
 				//console.timeEnd(timeStamp);
 
 
