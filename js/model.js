@@ -34,33 +34,11 @@
 				payload: this.localStorageObj
 			});
 
-		this.completedItemsBool = false;
 
-		this.ENTER_KEY = 13;
-
-		const camelCase = (str) => str.replace(/[-_]([a-z])/g, (m) => m[1].toUpperCase());
-
-		let isEnterKey = R.pathEq(['mouse','keyCode'], this.ENTER_KEY);
-		let inputIsNotEmpty =  R.pathSatisfies(R.complement(R.isEmpty), ['mouse','target','value']);
-		let filterInputValue = R.allPass([isEnterKey, inputIsNotEmpty]);
-		const checkForBtnEvents = R.complement(R.pathSatisfies(R.startsWith('title'), ['data','type']));
-
-		const filterUIElements = R.either(checkForBtnEvents, filterInputValue);
-
-		//const getCompletedAllItemsBool = () => this.completedItemsBool = !this.completedItemsBool;
-		const getCompletedAllItemsBool = () => document.querySelectorAll('.todo-list li.todos').length !== document.querySelectorAll('.todo-list li.completed').length;
-		const getCompletedItemBool =  R.pathEq(['mouse','target','checked'], true);
-
-
-		// PULL ITEMS TO MUTATE
-		const completedAllArr = R.pluck('id');
-		const allListArr = () => document.querySelectorAll('.todo-list li.todos').map(li => li.dataset.id);
-		const destroyItemsArr = () => document.querySelectorAll('.todo-list li.todos.completed').map(li => li.dataset.id); // R.compose(R.pluck('id'), R.filter(R.propEq('completed', true)));
-		const itemArr = R.path(['data','id']);
 
 
 		// BASE METHODS
-
+/*
 
 		const updateParamsInObj = (params) => {
 			console.log("params in upate ",params);
@@ -104,7 +82,7 @@
 
 
 
-		let mouseInputValueFn = p => p.mouse.target.value;
+
 
 
 		const todoParams =  (key, value, arr, obj) => ({ key, value, arr, obj });
@@ -122,6 +100,33 @@
 
 		const fParamsList = {completedAllParams, completedItemParams, destroyItemParams, destroyAllParams, titleItemParams, titleNewParams};
 
+*/
+
+
+		this.ENTER_KEY = 13;
+
+		const camelCase = (str) => str.replace(/[-_]([a-z])/g, (m) => m[1].toUpperCase());
+
+		let isEnterKey = R.pathEq(['mouse','keyCode'], this.ENTER_KEY);
+		let inputIsNotEmpty =  R.pathSatisfies(R.complement(R.isEmpty), ['mouse','target','value']);
+		let filterInputValue = R.allPass([isEnterKey, inputIsNotEmpty]);
+		const checkForBtnEvents = R.complement(R.pathSatisfies(R.startsWith('title'), ['data','type']));
+
+		const filterUIElements = R.either(checkForBtnEvents, filterInputValue);
+
+		//const getCompletedAllItemsBool = () => this.completedItemsBool = !this.completedItemsBool;
+		const getCompletedAllItemsBool = () => document.querySelectorAll('.todo-list li.todos').length !== document.querySelectorAll('.todo-list li.completed').length;
+		const getCompletedItemBool =  R.pathEq(['mouse','target','checked'], true);
+
+
+		// PULL ITEMS TO MUTATE
+		const completedAllArr = R.pluck('id');
+		const allListArr = () => document.querySelectorAll('.todo-list li.todos').map(li => li.dataset.id);
+		const destroyItemsArr = () => document.querySelectorAll('.todo-list li.todos.completed').map(li => li.dataset.id); // R.compose(R.pluck('id'), R.filter(R.propEq('completed', true)));
+		const itemArr = R.path(['data','id']);
+
+
+
 
 		const updateFn = (key, val, list, obj) => {
 			const itemInList = R.propSatisfies(R.contains(R.__, list), 'id');
@@ -135,11 +140,10 @@
 
 
 		const todoImpureData = (p,o) => {
-			const obj = o;
-			const str = p.data.type;
-			const key = R.head(R.split('-', str));
-			const itemList = R.of(itemArr(p));
+			const key = R.head(R.split('-', p.data.type));
+			const itemList = R.of(p.data.id);
 			const isItem = R.isNil(R.head(itemList)) === false;
+			const mouseInputValueFn = p => p.mouse.target.value;
 
 
 			const getData = k => {
@@ -170,10 +174,7 @@
 					}
 				};
 
-				 let ya = Object.assign({key}, data[key]);
-				 console.log("YA IS ",ya);
-
-				return ya;// Object.assign({key}, data[key]);
+				 return Object.assign({key}, data[key]);
 
 			};
 
@@ -182,8 +183,7 @@
 			const output = (args, o) => {
 				const {key, action, val, list, fn } = args;
 				const obj = fn(key,val,list,o);
-
-				const events = {key,list,val,action,fn, args};
+				const events = {key,list,val,action};
 				return {events, obj};
 			};
 
@@ -194,45 +194,12 @@
 
 
 
-		const todoGenerator = () => {
-
-			let key, value, arr, o, fn;
-
-			let action = k => k+'_action';
-
-			let event = {action, arr, key, value};
-			let obj = fn(event);
-			return {event, obj};
-
-		};
-
-
 
 		this.ui$ = this.getChannel("UI")
 			.filter(filterUIElements)
 			.map(p=>{
-
-				const obj = this.localStorageObj;
-
-				let paramsName = camelCase(p.data.type)+"Params";
-				let paramsFn = fParamsList[paramsName];
-				let newObject = paramsFn(p,obj);
-
-				let eventParams = ['key','value','arr','action'];
-
-				const parsedObj = {
-					event: R.pick(eventParams)(newObject),
-					obj: R.omit(eventParams)(newObject)
-
-				};
-
-
-				window.objF = newObject;
-
-				console.log('parsed obj ',parsedObj,' --impure data--> ',todoImpureData(p,obj));
-
-
-				return p;
+				const obj = R.clone(this.localStorageObj);
+				return todoImpureData(p, obj);
 
 			})
 			.subscribe(p => console.log(p));
