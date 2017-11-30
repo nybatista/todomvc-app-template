@@ -5,21 +5,7 @@
 		this.settings.name = 'MODEL';
 
 		this.STORAGE_KEY = 'todos-yaya';
-
-/*		this.actions = {
-			INIT_TODOS_EVENT   :  'INIT_TODOS_EVENT',
-			ADD_TODO_EVENT     :  'ADD_TODO_EVENT',
-			REMOVE_TODO_EVENT  :  'REMOVE_TODO_EVENT',
-			UPDATE_TODOS_EVENT :  'UPDATE_TODOS_EVENT'
-		};*/
-
-
-
 		this.localStorageObj = this.getStorageItems();
-/*		window.localObj = this.localStorageObj;
-		this.idIter = this.getHighestIdNum();
-		console.log('id iter  = ',this.idIter);*/
-
 		this.observer$ = new Rx.BehaviorSubject(
 			{
 				action: 'INIT_TODOS_EVENT',
@@ -35,6 +21,17 @@
 		const checkForBtnEvents = R.complement(R.pathSatisfies(R.startsWith('title'), ['data','type']));
 
 		const filterUIElements = R.either(checkForBtnEvents, filterInputValue);
+
+
+		this.ui$ = this.getChannel("UI")
+			.filter(filterUIElements)
+			.map(p=>{
+				const obj = R.clone(this.localStorageObj);
+				return todoImpureData(p, obj);
+			});
+
+
+		// TODOS PARSING
 
 		const getCompletedAllItemsBool = ()=>!R.all(R.equals(true), R.map(x=>x.classList.contains('completed'))(document.querySelectorAll('.todo-list li')));
 		const getCompletedItemBool =  R.pathEq(['mouse','target','checked'], true);
@@ -62,7 +59,6 @@
 
 			const getData = k => {
 				 const data = {
-
 					completed: {
 						fn: updateFn,
 						list: isItem === true ? itemList : allListArr(p),
@@ -92,8 +88,6 @@
 
 			};
 
-
-
 			const output = (args, o) => {
 				const {key, action, val, list, fn } = args;
 				const obj = fn(key,val,list,o);
@@ -101,31 +95,15 @@
 				return {action, payload, obj};
 			};
 
-
-
 			return output(getData(key), o);
 		};
 
 
-
-
-		this.ui$ = this.getChannel("UI")
-			.filter(filterUIElements)
-			.map(p=>{
-				const obj = R.clone(this.localStorageObj);
-				return todoImpureData(p, obj);
-
-			})
+			this.ui$
 			.subscribe(p => console.log(p));
 
-
-
-
 	}
 
-	onInputEntered(evt){
-		this.addTodoObject( R.trim(evt.target.value));
-	}
 
 	getNextId(){
 		const padMaxNum = 6;
@@ -138,24 +116,6 @@
 		 const getNum =  R.compose(R.defaultTo(0), parseInt, R.last, R.pluck('id'));
 		 return getNum(this.localStorageObj);
 	 }
-
-
-
-/*
-	addTodoObject(val){
-		let obj = {
-			id: this.getNextId(),
-			title: val,
-			completed: false
-		};
-
-
-		//this.setStorage(this.localStorageObj.push(obj));
-		this.localStorageObj.push(obj);
-		console.log("STORAGE ",typeof(this.localStorageObj), JSON.stringify(obj), obj);
-		this.setStorage(this.localStorageObj);
-		this.onSendStream('ADD_TODO_EVENT', obj);
-	}*/
 
 	onSendStream(a, o){
 		let action = this.actions[a];
