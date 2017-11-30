@@ -125,14 +125,9 @@
 
 		const updateFn = (key, val, list, obj) => {
 			const itemInList = R.propSatisfies(R.contains(R.__, list), 'id');
-			const updateParams = R.when(
-				itemInList,
-				R.assoc(key, val),
-			);
+			const updateParams = R.when(itemInList, R.assoc(key, val));
 			return  R.map(updateParams, obj);
 		};
-
-
 
 		const destroyFn = (key, val, list, obj)  =>  R.reject(R.propSatisfies(R.contains(R.__, list), 'id'), obj);
 		const titleFn = (key, title, id, obj, completed = false) =>  R.append({id,title,completed}, obj);
