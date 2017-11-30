@@ -142,47 +142,46 @@
 			const isItem = R.isNil(R.head(itemList)) === false;
 
 
-			const data = {
+			const getData = k => {
+				 const data = {
 
-				key,
-	/*			action:  paramActions[key],
-				valBoolItem: getCompletedItemBool(p),
-				valBoolAll: getCompletedAllItemsBool(),
-				valFromInput: mouseInputValueFn(p),
-				itemList,
-				isItem,
-				newId: this.getNextId(),
-				allList: allListArr(p),*/
+					completed: {
+						fn: updateFn,
+						list: isItem === true ? itemList : allListArr(p),
+						val: isItem === true ? getCompletedItemBool(p) : getCompletedAllItemsBool(),
+						action: "UPDATE_TODOS_EVENT"
+					},
+					// title values
 
-				// completed values
-				completedFn: updateFn,
-				completedList: isItem === true ? itemList : allListArr(p),
-				completedVal: isItem === true ? getCompletedItemBool(p) : getCompletedAllItemsBool(),
+					title: {
+						fn: isItem === true ? updateFn : titleFn,
+						list: isItem === true ? itemList : this.getNextId(),
+						val: mouseInputValueFn(p),
+						action:  isItem === true ? "UPDATE_TODOS_EVENT" : "ADD_TODO_EVENT"
 
-				// title values
-				titleFn: isItem === true ? updateFn : titleFn,
-				titleList: isItem === true ? itemList : this.getNextId(),
-				titleVal: mouseInputValueFn(p),
+					},
+					destroy: {
+						// destroy values
+						fn: destroyFn,
+						list: isItem === true ? itemList : destroyItemsArr(),
+						val: undefined,
+						action: "DESTROY_TODOS_EVENT"
 
-				// destroy values
-				destroyFn: destroyFn,
-				destroyList: isItem === true ? itemList  : destroyItemsArr(),
-				destroyVal: undefined,
+					}
+				};
 
-				obj: o,
+				 let ya = Object.assign({key}, data[key]);
+				 console.log("YA IS ",ya);
+
+				return ya;// Object.assign({key}, data[key]);
 
 			};
 
 
 
-			const output = (args) => {
-
-				const key = args.key;
-				const action = args.action;
-				const list = args[key+'List'];
-				const val = args[key+'Val'];
-				const fn =  args[key+'Fn'];
-				const obj = fn(key,val,list,args.obj);
+			const output = (args, o) => {
+				const {key, action, val, list, fn } = args;
+				const obj = fn(key,val,list,o);
 
 				const events = {key,list,val,action,fn, args};
 				return {events, obj};
@@ -190,7 +189,7 @@
 
 
 
-			return output(data);
+			return output(getData(key), o);
 		};
 
 
