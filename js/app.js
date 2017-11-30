@@ -59,24 +59,26 @@
 		}
 
 		onRouteChanged(p){
-
-			const data = p.data;
-			const classVal = p.data.hashValue;
-			const arr = ['active', 'completed'];
-			const addClassList = p.data.hashValue;
-			const classList = this.settings.el.querySelector('ul.todo-list').classList;
+			const routesArr = ['active', 'completed'];
+			const classList = this.classList;
 			const removeClass = c => classList.remove(c);
 			const addClass = c => classList.add(c);
-			if (classVal==='active'){
-				addClass(arr.shift());
-			} else if (classVal === 'completed'){
-				addClass(arr.pop());
+			const hasClass = R.contains(R.__, classList);
+			const isSelectedClass = R.equals(R.__, p.data.hashValue);
 
-			}
-			arr.forEach(removeClass);
-			console.log("data is ",data);
+			const checkState = R.cond([
+				[isSelectedClass, addClass],
+				[hasClass, removeClass]
+			]);
+			routesArr.forEach(checkState)
+
 		}
+
+
 		afterRender(){
+
+			this.classList = this.settings.el.querySelector('ul.todo-list').classList;
+
 			this.getChannel("MODEL")
 				.subscribe(p => this.onModelAction(p));
 
