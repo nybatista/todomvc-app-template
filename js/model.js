@@ -1,6 +1,6 @@
  class TodosModel extends spyne.ChannelsBase {
 	constructor(){
-
+		NodeList.prototype.map = HTMLCollection.prototype.map = Array.prototype.map;
 
 		super();
 		this.settings.name = 'MODEL';
@@ -14,7 +14,7 @@
 			UPDATE_TODOS_EVENT :  'UPDATE_TODOS_EVENT'
 		};
 
-		this.paramActions = {
+		const paramActions = this.paramActions = {
 			completed: 'UPDATE_TODOS_EVENT',
 			destroy: 'REMOVE_TODO_EVENT',
 			title: 'UPDATE_TODOS_EVENT',
@@ -46,15 +46,16 @@
 		const checkForBtnEvents = R.complement(R.pathSatisfies(R.startsWith('title'), ['data','type']));
 
 		const filterUIElements = R.either(checkForBtnEvents, filterInputValue);
-		//const [inputSrc$, uiSrc$] = this.getChannel("UI").partition(checkForInput);
 
-		const getCompletedAllItemsBool = () => this.completedItemsBool = !this.completedItemsBool;
+		//const getCompletedAllItemsBool = () => this.completedItemsBool = !this.completedItemsBool;
+		const getCompletedAllItemsBool = () => document.querySelectorAll('.todo-list li.todos').length !== document.querySelectorAll('.todo-list li.completed').length;
 		const getCompletedItemBool =  R.pathEq(['mouse','target','checked'], true);
 
 
 		// PULL ITEMS TO MUTATE
 		const completedAllArr = R.pluck('id');
-		const destroyItemsArr = R.compose(R.pluck('id'), R.filter(R.propEq('completed', true)));
+		const allListArr = () => document.querySelectorAll('.todo-list li.todos').map(li => li.dataset.id);
+		const destroyItemsArr = () => document.querySelectorAll('.todo-list li.todos.completed').map(li => li.dataset.id); // R.compose(R.pluck('id'), R.filter(R.propEq('completed', true)));
 		const itemArr = R.path(['data','id']);
 
 
@@ -62,10 +63,6 @@
 
 
 		const updateParamsInObj = (params) => {
-
-			//let arr =  typeof(arrFn)==='string' ? arrFn : arrFn(obj);
-			//let arr = arrFn;
-			//console.log('typeof ',typeof(arrFn), arrFn)
 			console.log("params in upate ",params);
 			const itemInArr = R.propSatisfies(R.contains(R.__, params.arr), 'id');
 			let propKey = params.key;
@@ -79,24 +76,8 @@
 			return params;
 
 		};
-		let mouseInputValueFn = p => p.mouse.target.value;
 
 
-		const todoParams =  (key, value, arr, obj) => ({ key, value, arr, obj });
-
-		const completedAllParams = (p,o) => updateParamsInObj(todoParams('completed', getCompletedAllItemsBool(), completedAllArr(o), o));
-		const completedItemParams = (p,o) => updateParamsInObj(todoParams('completed', getCompletedItemBool(p), R.of(itemArr(p)), o));
-		const destroyItemParams = (p,o) => destroyItemFn(todoParams('destroy', undefined,  R.of(itemArr(p)), o));
-		const destroyAllParams = (p,o) => destroyItemFn(todoParams('destroy',undefined, destroyItemsArr(o), o));
-		const titleItemParams = (p,o) => updateParamsInObj(todoParams('title', mouseInputValueFn(p), R.of(itemArr(p)), o));
-		const titleNewParams = (p,o) => titleNewFn(todoParams('titleNew', mouseInputValueFn(p), this.getNextId(), o));
-
-
-
-		//const completedAllFn = (params) =>  updateParamsInObj(params);
-		//const completedItemFn = (params) =>	 updateParamsInObj(params)
-		//const titleItemFn = (params) =>   updateParamsInObj(params);
-		//const destroyAllFn = (params) =>  R.reject(R.propSatisfies(R.contains(R.__, params.arr), 'id'), params.obj);
 
 		const destroyItemFn = (params)  =>  {
 
@@ -119,20 +100,81 @@
 			return params;
 		};
 
-		//const fList = {completedAllFn, completedItemFn, destroyItemFn, destroyAllFn, titleItemFn, titleNewFn};
+
+
+
+
+		let mouseInputValueFn = p => p.mouse.target.value;
+
+
+		const todoParams =  (key, value, arr, obj) => ({ key, value, arr, obj });
+
+		const completedAllParams = (p,o) => updateParamsInObj(todoParams('completed', getCompletedAllItemsBool(), completedAllArr(o), o));
+		const completedItemParams = (p,o) => updateParamsInObj(todoParams('completed', getCompletedItemBool(p), R.of(itemArr(p)), o));
+		const destroyItemParams = (p,o) => destroyItemFn(todoParams('destroy', undefined,  R.of(itemArr(p)), o));
+		const destroyAllParams = (p,o) => destroyItemFn(todoParams('destroy',undefined, destroyItemsArr(o), o));
+		const titleItemParams = (p,o) => updateParamsInObj(todoParams('title', mouseInputValueFn(p), R.of(itemArr(p)), o));
+		const titleNewParams = (p,o) => titleNewFn(todoParams('titleNew', mouseInputValueFn(p), this.getNextId(), o));
+
+
+
+
 
 		const fParamsList = {completedAllParams, completedItemParams, destroyItemParams, destroyAllParams, titleItemParams, titleNewParams};
-		//console.log('function list ',fList, fList['completedAllFn']);
+
+
+		const todoImpureData = (p,o) => {
+			const obj = o;
+			const str = p.data.type;
+			const key = R.head(R.split('-', str));
+			const itemList = R.of(itemArr(p));
+			const isItem = R.isNil(R.head(itemList)) === false;
+
+
+			return {
+
+				key,
+				action:  paramActions[key],
+				valBoolItem: getCompletedItemBool(p),
+				valBoolAll: getCompletedAllItemsBool(),
+				valFromInput: mouseInputValueFn(p),
+				itemList,
+				isItem,
+				newId: this.getNextId(),
+				allList: allListArr(p),
+				destroyList: isItem === true ? itemList  : destroyItemsArr(),
+				titleFn: isItem === true ? updateParamsInObj : titleNewFn,
+				destroyFn: destroyItemFn,
+				obj: o,
+
+			}
+
+
+
+		};
+
+
+
+		const todoGenerator = () => {
+
+			let key, value, arr, o, fn;
+
+			let action = k => k+'_action';
+
+			let event = {action, arr, key, value};
+			let obj = fn(event);
+			return {event, obj};
+
+		};
+
 
 
 		this.ui$ = this.getChannel("UI")
 			.filter(filterUIElements)
 			.map(p=>{
-				//const timeStamp = 'todo parsing';
-				//console.time(timeStamp);
+
 				const obj = this.localStorageObj;
 
-				//let fnName = camelCase(p.data.type)+"Fn";
 				let paramsName = camelCase(p.data.type)+"Params";
 				let paramsFn = fParamsList[paramsName];
 				let newObject = paramsFn(p,obj);
@@ -144,30 +186,12 @@
 					obj: R.omit(eventParams)(newObject)
 
 				};
-				//console.log("the params ",theParams,paramsFn);
 
-				//let testObj = theParams;// objFn(theParams);
 
 				window.objF = newObject;
 
-				console.log('parsed obj ',parsedObj,' ----> ',p);
-				//console.timeEnd(timeStamp);
+				console.log('parsed obj ',parsedObj,' ----> ',todoImpureData(p,obj));
 
-
-				//let newObj = updateParamsInObj('completed', 'yaya is here a title ',destroyItemsArr, obj);
-				//let completedAll = completedAllFn(getCompletedAllItemsBool(), obj);
-				//let completedItem = completedItemFn(getCompletedItemBool(p),itemArr(p),obj);
-				//let destroyCompletedItems = destroyItemsFn(obj);
-				//let destroyItems = destroyItemsFn(obj);
-				//	console.log({completedAll, completedItem, destroyCompletedItems},' p is ',p);
-				//console.log('update title ',updateTitle(p,obj))
-				//let newObj  = titleNewFn(p,obj);
-				//console.log("fn is ",fnName);
-				//console.log('p is ',paramsFn(p,obj), '---- ',p);
-				//let o = fList[fnName](p,obj);
-				//let a = 'UPDATE_TODOS_EVENT';
-
-				//return {a,o};
 
 				return p;
 
@@ -185,7 +209,7 @@
 
 	getNextId(){
 		const padMaxNum = 6;
-		this.idIter++;
+		this.idIter = this.getHighestIdNum()+1;
 		const padNum = padMaxNum - String(this.idIter).length;
 		console.log('id is ',padNum,padMaxNum,String(this.idIter).length);
 		return String('0').repeat(padNum)+this.idIter;

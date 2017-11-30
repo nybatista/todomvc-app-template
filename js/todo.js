@@ -3,7 +3,8 @@ class Todo extends spyne.ViewStream  {
 	constructor(opts={}) {
 		opts.tagName = 'li';
 		opts.tmpl = document.querySelector('.todo-tmpl');
-		opts.className = ['editing'];
+		opts['class'] = ['todos'];
+		opts['dataset'] = opts.data;
 		super(opts);
 		this.id = opts.data.id;
 		this.title = opts.data.title;
@@ -48,6 +49,9 @@ class Todo extends spyne.ViewStream  {
 	afterRender(){
 		//this.settings.el.classList.add('editieng');
 		//console.log(" after render ",this.settings.id);
+		if (this.settings.data.completed===true){
+			this.settings.el.classList.add('completed');
+		}
 
 		let filterLocalUIEvents = p => p.data.cid === this.settings.id && p.data.event === 'dblClick';
 
