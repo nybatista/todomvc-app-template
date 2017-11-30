@@ -123,6 +123,22 @@
 		const fParamsList = {completedAllParams, completedItemParams, destroyItemParams, destroyAllParams, titleItemParams, titleNewParams};
 
 
+		const updateFn = (key, val, list, obj) => {
+			const itemInList = R.propSatisfies(R.contains(R.__, list), 'id');
+			const updateParams = R.when(
+				itemInList,
+				R.assoc(key, val),
+			);
+			return  R.map(updateParams, obj);
+		};
+
+
+
+		const destroyFn = (key, val, list, obj)  =>  R.reject(R.propSatisfies(R.contains(R.__, list), 'id'), obj);
+		const titleFn = (key, title, id, obj, completed = false) =>  R.append({id,title,completed}, obj);
+
+
+
 		const todoImpureData = (p,o) => {
 			const obj = o;
 			const str = p.data.type;
@@ -131,26 +147,55 @@
 			const isItem = R.isNil(R.head(itemList)) === false;
 
 
-			return {
+			const data = {
 
 				key,
-				action:  paramActions[key],
+	/*			action:  paramActions[key],
 				valBoolItem: getCompletedItemBool(p),
 				valBoolAll: getCompletedAllItemsBool(),
 				valFromInput: mouseInputValueFn(p),
 				itemList,
 				isItem,
 				newId: this.getNextId(),
-				allList: allListArr(p),
+				allList: allListArr(p),*/
+
+				// completed values
+				completedFn: updateFn,
+				completedList: isItem === true ? itemList : allListArr(p),
+				completedVal: isItem === true ? getCompletedItemBool(p) : getCompletedAllItemsBool(),
+
+				// title values
+				titleFn: isItem === true ? updateFn : titleFn,
+				titleList: isItem === true ? itemList : this.getNextId(),
+				titleVal: mouseInputValueFn(p),
+
+				// destroy values
+				destroyFn: destroyFn,
 				destroyList: isItem === true ? itemList  : destroyItemsArr(),
-				titleFn: isItem === true ? updateParamsInObj : titleNewFn,
-				destroyFn: destroyItemFn,
+				destroyVal: undefined,
+
 				obj: o,
 
-			}
+			};
 
 
 
+			const output = (args) => {
+
+				const key = args.key;
+				const action = args.action;
+				const list = args[key+'List'];
+				const val = args[key+'Val'];
+				const fn =  args[key+'Fn'];
+				const obj = fn(key,val,list,args.obj);
+
+				const events = {key,list,val,action,fn, args};
+				return {events, obj};
+			};
+
+
+
+			return output(data);
 		};
 
 
@@ -190,7 +235,7 @@
 
 				window.objF = newObject;
 
-				console.log('parsed obj ',parsedObj,' ----> ',todoImpureData(p,obj));
+				console.log('parsed obj ',parsedObj,' --impure data--> ',todoImpureData(p,obj));
 
 
 				return p;
