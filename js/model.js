@@ -27,7 +27,7 @@
 			.filter(filterUIElements)
 			.map(p=>{
 				const obj = R.clone(this.localStorageObj);
-				return todoImpureData(p, obj);
+				return todoParser(p, obj);
 			});
 
 
@@ -50,7 +50,7 @@
 		const destroyFn = (key, val, list, obj)  =>  R.reject(R.propSatisfies(R.contains(R.__, list), 'id'), obj);
 		const titleFn = (key, title, id, obj, completed = false) =>  R.append({id,title,completed}, obj);
 
-		const todoImpureData = (p,o) => {
+		const todoParser = (p,o) => {
 			const key = R.head(R.split('-', p.data.type));
 			const itemList = R.of(p.data.id);
 			const isItem = R.isNil(R.head(itemList)) === false;
@@ -100,7 +100,7 @@
 
 
 			this.ui$
-			.subscribe(p => console.log(p));
+			.subscribe(p => this.onSendStream(p));
 
 	}
 
@@ -117,11 +117,16 @@
 		 return getNum(this.localStorageObj);
 	 }
 
-	onSendStream(a, o){
-		let action = this.actions[a];
-		let payload = o;
+	onSendStream(data){
+		const {action, payload, obj} = data;
+
+		console.log("DATA ",action,payload,obj);
+
 		this.observer$.next({action, payload});
-	}
+
+		this.localStorageObj = this.setStorage(obj);
+	};
+
 
 	getStorageItems(){
 		 return JSON.parse(localStorage.getItem(this.STORAGE_KEY)) || this.setStorage();

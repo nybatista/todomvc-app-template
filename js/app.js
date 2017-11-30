@@ -2,13 +2,12 @@
 	'use strict';
 	// Your starting point. Enjoy the ride!
 
-	console.log(window.document.readyState);
+	//console.log(window.document.readyState);
 
 	new Spyne();
 
 	class App extends Spyne.ViewStream {
 		constructor(opts={}){
-			console.log("opts is ",opts);
 			super(opts);
 			this.afterRender();
 		}
@@ -22,7 +21,7 @@
 
 		extendedStateMethods(){
 			return [
-				["INIT_TODOS_EVENT", "onInitTodos"]
+				/*["INIT_TODOS_EVENT", "onInitTodos"]*/
 			]
 		}
 		onInitTodos(p){
@@ -43,18 +42,39 @@
 
 		onModelAction(p){
 			const {action, payload} = p;
+			this.sendEventsDownStream(action,p);
+
 			if (action === "INIT_TODOS_EVENT"){
 				this.onInitTodos(p.payload);
 			} else if (action === "ADD_TODO_EVENT"){
+				payload['title'] = payload.val;
 				this.addTodo(payload);
 				this.clearInput();
-				this.sendEventsDownStream(action,p);
 
 			}
 			//this.sendEventsDownStream(action, {});
-			console.log("ACTION STRING ",action);
+			//console.log("ACTION STRING ",action);
 
-			console.log("TODO EVT ", action, p,this)
+			//console.log("TODO EVT ", action, p,this)
+		}
+
+		onRouteChanged(p){
+
+			const data = p.data;
+			const classVal = p.data.hashValue;
+			const arr = ['active', 'completed'];
+			const addClassList = p.data.hashValue;
+			const classList = this.settings.el.querySelector('ul.todo-list').classList;
+			const removeClass = c => classList.remove(c);
+			const addClass = c => classList.add(c);
+			if (classVal==='active'){
+				addClass(arr.shift());
+			} else if (classVal === 'completed'){
+				addClass(arr.pop());
+
+			}
+			arr.forEach(removeClass);
+			console.log("data is ",data);
 		}
 		afterRender(){
 			this.getChannel("MODEL")
@@ -62,7 +82,7 @@
 
 
 			this.getChannel("ROUTE")
-				.subscribe(x => console.log("ROUTE ",x));
+				.subscribe(p => this.onRouteChanged(p));
 
 
 			this.todoCountEl = document.querySelector('span.todo-count strong');
