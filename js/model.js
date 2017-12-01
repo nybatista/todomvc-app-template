@@ -6,6 +6,8 @@
 
 		this.STORAGE_KEY = 'todos-yaya';
 		this.localStorageObj = this.getStorageItems();
+
+		window.lStorage = this.localStorageObj;
 		this.observer$ = new Rx.BehaviorSubject(
 			{
 				action: 'INIT_TODOS_EVENT',

@@ -4,6 +4,11 @@ class Todo extends spyne.ViewStream  {
 		opts.tagName = 'li';
 		opts.tmpl = document.querySelector('.todo-tmpl');
 		opts['class'] = ['todos'];
+
+		R.when(
+			R.contains('val'),
+			R.assoc('title', 'val')
+		)(opts);
 		opts['dataset'] = opts.data;
 		super(opts);
 		this.id = opts.data.id;
