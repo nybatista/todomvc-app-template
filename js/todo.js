@@ -57,8 +57,10 @@ class Todo extends spyne.ViewStream  {
 		const cList = this.settings.el.classList;
 
 		if (k === 'completed') {
+			this.settings.data.completed = v;
 			const classUpdate = v === true ? R.invoker(1, 'add') : R.invoker(1, 'remove');
 			classUpdate(k, cList);
+			this.updateCheckBox();
 		} else if(k === 'title'){
 			const label = this.settings.el.querySelector('div label');
 			label.textContent = v;
@@ -76,6 +78,11 @@ class Todo extends spyne.ViewStream  {
 		 window.theEl = this.settings.el;
 	}
 
+	updateCheckBox(){
+		this.settings.el.querySelector('input.toggle').checked=this.settings.data.completed;
+
+	}
+
 	afterRender(){
 		//this.settings.el.classList.add('editieng');
 		//console.log(" after render ",this.settings.id);
@@ -83,6 +90,7 @@ class Todo extends spyne.ViewStream  {
 			this.settings.el.classList.add('completed');
 		}
 
+		this.updateCheckBox();
 		let filterLocalUIEvents = p => p.data.cid === this.settings.id && p.data.event === 'dblClick';
 
 		this.ui$ = this.getChannel('UI')

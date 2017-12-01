@@ -35,10 +35,7 @@
 		clearInput(){
 			this.settings.el.querySelector('.new-todo').value="";
 		}
-		updateCount() {
-			const count = document.querySelectorAll('.todo-list li:not(.completed)').length;
-			this.todoCountEl.textContent = count;
-		}
+
 
 		onModelAction(p){
 			const {action, payload} = p;
@@ -52,32 +49,48 @@
 				this.clearInput();
 
 			}
-			//this.sendEventsDownStream(action, {});
-			//console.log("ACTION STRING ",action);
 
-			//console.log("TODO EVT ", action, p,this)
+			this.updateTextCount();
+
 		}
 
 		onRouteChanged(p){
+			const selectedClass = p.data.hashValue;
 			const routesArr = ['active', 'completed'];
 			const classList = this.classList;
 			const removeClass = c => classList.remove(c);
 			const addClass = c => classList.add(c);
 			const hasClass = R.contains(R.__, classList);
-			const isSelectedClass = R.equals(R.__, p.data.hashValue);
+			const isSelectedClass = R.equals(R.__, selectedClass);
 
 			const checkState = R.cond([
 				[isSelectedClass, addClass],
 				[hasClass, removeClass]
 			]);
 			routesArr.forEach(checkState)
+			this.updateMenu(selectedClass)
 
+		}
+
+		updateMenu(route='home'){
+			const selector = `footer ul li a[data-route=${route}]`;
+			let removeSelected = el => el.classList.remove('selected');
+			document.querySelectorAll('footer ul li a').forEach(removeSelected);
+
+			let el = document.querySelectorAll(selector)[0].classList.add('selected');
+		}
+		updateTextCount(){
+			const num = document.querySelectorAll('.todo-list li').length;
+			const itemsStr = num<= 1 ? " item left" : " items left";
+			this.countEl.innerHTML = `<strong>${num}</strong>${itemsStr}`;
 		}
 
 
 		afterRender(){
 
 			this.classList = this.settings.el.querySelector('ul.todo-list').classList;
+			this.countEl = document.querySelector('footer span.todo-count');
+			this.menuEl = document.querySelectorAll('ul.filters li');
 
 			this.getChannel("MODEL")
 				.subscribe(p => this.onModelAction(p));
