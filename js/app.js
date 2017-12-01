@@ -82,6 +82,13 @@
 		updateTextCount(){
 			const num = document.querySelectorAll('.todo-list li').length;
 			const itemsStr = num<= 1 ? " item left" : " items left";
+
+			if (num === 0){
+				this.settings.el.classList.add('hide-elements');
+			} else {
+				this.settings.el.classList.remove('hide-elements');
+			}
+
 			this.countEl.innerHTML = `<strong>${num}</strong>${itemsStr}`;
 		}
 

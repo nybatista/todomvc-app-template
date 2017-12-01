@@ -14,3 +14,25 @@ body .todo-list.completed li:not(.completed) {
 body .todo-list.active li.completed {
 	display:none;
 }
+
+
+
+/*
+
+app-template.css overrides
+
+remove this comment if used
+remove this file if not
+
+*/
+
+
+
+body .todoapp.hide-elements footer{
+	display:none;
+}
+
+body .todoapp.hide-elements label[for=toggle-all] {
+	display:none;
+}
+
