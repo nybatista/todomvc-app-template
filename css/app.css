@@ -28,6 +28,7 @@ remove this file if not
 
 
 
+
 body .todoapp.hide-elements footer{
 	display:none;
 }
@@ -35,4 +36,5 @@ body .todoapp.hide-elements footer{
 body .todoapp.hide-elements label[for=toggle-all] {
 	display:none;
 }
+
 

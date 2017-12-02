@@ -6,13 +6,15 @@ class Todo extends spyne.ViewStream  {
 		opts['class'] = ['todos'];
 
 		R.when(
-			R.contains('val'),
+			R.propEq('key', 'title'),
 			R.assoc('title', 'val')
-		)(opts);
+		)(opts.data);
+
 		opts['dataset'] = opts.data;
 		super(opts);
 		this.id = opts.data.id;
 		this.title = opts.data.title;
+
 
 	}
 
@@ -39,7 +41,7 @@ class Todo extends spyne.ViewStream  {
 	}
 
 	onRemoveTodosEvent(p){
-		let isLocalUpdateFilter = R.contains(this.id, p.payload.list);
+		let isLocalUpdateFilter = R.contains(this.id, p.payload.id);
 		if (isLocalUpdateFilter === true){
 			this.ui$.unsubscribe();
 			this.onDispose();
@@ -48,7 +50,7 @@ class Todo extends spyne.ViewStream  {
 	}
 
 	onTodosEvent(p) {
-		let isLocalUpdateFilter = R.contains(this.id, p.payload.list);
+		let isLocalUpdateFilter = R.contains(this.id, p.payload.id);
 
 		if (isLocalUpdateFilter === true){
 			this.updateDom(p.payload.key, p.payload.val);

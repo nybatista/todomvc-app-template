@@ -43,16 +43,17 @@
 		const allListArr = () => R.map(x=>x.dataset.id,  document.querySelectorAll('.todo-list li.todos'));
 		const destroyItemsArr = () =>  R.map(x=>x.dataset.id,  document.querySelectorAll('.todo-list li.todos.completed'));
 
-		const updateFn = (key, val, list, obj) => {
-			const itemInList = R.propSatisfies(R.contains(R.__, list), 'id');
+		const updateFn = (key, val, id, obj) => {
+			const itemInList = R.propSatisfies(R.contains(R.__, id), 'id');
 			const updateParams = R.when(itemInList, R.assoc(key, val));
 			return  R.map(updateParams, obj);
 		};
 
-		const destroyFn = (key, val, list, obj)  =>  R.reject(R.propSatisfies(R.contains(R.__, list), 'id'), obj);
+		const destroyFn = (key, val, id, obj)  =>  R.reject(R.propSatisfies(R.contains(R.__, id), 'id'), obj);
 		const titleFn = (key, title, id, obj, completed = false) =>  R.append({id,title,completed}, obj);
 
 		const todoParser = (p,o) => {
+			console.log('todo parser ',p,o);
 			const key = R.head(R.split('-', p.data.type));
 			const itemList = R.of(p.data.id);
 			const isItem = R.isNil(R.head(itemList)) === false;
@@ -63,7 +64,7 @@
 				 const data = {
 					completed: {
 						fn: updateFn,
-						list: isItem === true ? itemList : allListArr(p),
+						id: isItem === true ? itemList : allListArr(p),
 						val: isItem === true ? getCompletedItemBool(p) : getCompletedAllItemsBool(),
 						action: "UPDATE_TODOS_EVENT"
 					},
@@ -71,7 +72,7 @@
 
 					title: {
 						fn: isItem === true ? updateFn : titleFn,
-						list: isItem === true ? itemList : this.getNextId(),
+						id: isItem === true ? itemList : this.getNextId(),
 						val: mouseInputValueFn(p),
 						action:  isItem === true ? "UPDATE_TODOS_EVENT" : "ADD_TODO_EVENT"
 
@@ -79,7 +80,7 @@
 					destroy: {
 						// destroy values
 						fn: destroyFn,
-						list: isItem === true ? itemList : destroyItemsArr(),
+						id: isItem === true ? itemList : destroyItemsArr(),
 						val: undefined,
 						action: "DESTROY_TODOS_EVENT"
 
@@ -91,9 +92,9 @@
 			};
 
 			const output = (args, o) => {
-				const {key, action, val, list, fn } = args;
-				const obj = fn(key,val,list,o);
-				const payload = {key,list,val,action};
+				const {key, action, val, id, fn } = args;
+				const obj = fn(key,val,id,o);
+				const payload = {key,id,val,action};
 				return {action, payload, obj};
 			};
 
