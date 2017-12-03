@@ -19,6 +19,7 @@
 		const uiTypePath = ['data','type'];
 		const uiValPath =  ['mouse','target','value'];
 		const uiCheckboxPath = ['mouse', 'target', 'checked'];
+
 		let isEnterKey = R.pathEq(['mouse','keyCode'], this.ENTER_KEY);
 		let inputIsNotEmpty =  R.pathSatisfies(R.complement(R.isEmpty), uiValPath);
 		let isNewInput =  R.pathEq(uiTypePath, 'title-new');
@@ -35,31 +36,31 @@
 			.map(p=>{
 				const obj = R.clone(this.localStorageObj);
 				return todoParser(p, obj);
-			})
-			//.subscribe(p => console.log("subscribed: ",p));
-		;
+			});
 
 
 
 		// TODOS PARSING
-		this.liItems = document.querySelectorAll('.todo-list li');
-		const getSelectedLiItems = () => R.map(el => el.classList.contains('completed')(this.liItems));
-		const getCompletedAllItemsBool = ()=>!R.all(R.equals(true), R.map(x=>x.classList.contains('completed'))(document.querySelectorAll('.todo-list li')));
+		const getLiEls = (c="") => document.querySelectorAll(`.todo-list li${c}`);
+		const getSelectedLiItems = () => R.map(el => el.classList.contains('completed')(getLiEls()));
+		const getAllCompletedItemsBool = ()=>!R.all(R.equals(true), R.map(x=>x.classList.contains('completed'))(getLiEls()));
 		const getCompletedItemBool =  R.pathEq(uiCheckboxPath, true);
 
 
 		// PULL ITEMS TO MUTATE
-		const allListArr = () => R.map(x=>x.dataset.id,  document.querySelectorAll('.todo-list li.todos'));
-		const destroyItemsArr = () =>  R.map(x=>x.dataset.id,  document.querySelectorAll('.todo-list li.todos.completed'));
+		const allListArr = () => R.map(el => el.dataset.id, getLiEls('.todos'));
+		const destroyItemsArr = () =>  R.map(el => el.dataset.id,  getLiEls('.todos.completed'));
 
-		const updateFn = (key, val, id, obj) => {
+		// MAIN UPDATE METHODS
+
+		const updateTodoParams = (key, val, id, obj) => {
 			const itemInList = R.propSatisfies(R.contains(R.__, id), 'id');
 			const updateParams = R.when(itemInList, R.assoc(key, val));
 			return  R.map(updateParams, obj);
 		};
 
-		const destroyFn = (key, val, id, obj)  =>  R.reject(R.propSatisfies(R.contains(R.__, id), 'id'), obj);
-		const titleFn = (key, title, id, obj, completed = false) =>  R.append({id,title,completed}, obj);
+		const destroyTodos = (key, val, id, obj)  =>  R.reject(R.propSatisfies(R.contains(R.__, id), 'id'), obj);
+		const createTodo = (key, title, id, obj, completed = false) =>  R.append({id,title,completed}, obj);
 
 		const todoParser = (p,o) => {
 			console.log('todo parser ',p,o);
@@ -67,12 +68,20 @@
 			let key = R.head(R.split('-', p.data.type));
 			const itemList = R.of(p.data.id);
 			const isItem = R.isNil(R.head(itemList)) === false;
-			const mouseInputValueFn = p => p.mouse.target.value;
-			const todoInputIsEmpty = p.data.type === 'title-item' && R.isEmpty(p.mouse.target.value);
+			const inputValue = R.path(uiValPath, p);
+			// const mouseInputValueFn = p => p.mouse.target.value;
+			const todoInputIsEmpty = p.data.type === 'title-item' && R.isEmpty(inputValue);
 
+			key = todoInputIsEmpty === true ? 'destroy' : key;
+
+
+			/*
 			if (todoInputIsEmpty === true){
 				key = 'destroy';
 			}
+              */
+
+
 
 			console.log("TODO INPUT EMPTY ",todoInputIsEmpty);
 
@@ -80,23 +89,23 @@
 			const getData = k => {
 				 const data = {
 					completed: {
-						fn: updateFn,
+						fn: updateTodoParams,
 						id: isItem === true ? itemList : allListArr(p),
-						val: isItem === true ? getCompletedItemBool(p) : getCompletedAllItemsBool(),
+						val: isItem === true ? getCompletedItemBool(p) : getAllCompletedItemsBool(),
 						action: "UPDATE_TODOS_EVENT"
 					},
 					// title values
 
 					title: {
-						fn: isItem === true ? updateFn : titleFn,
+						fn: isItem === true ? updateTodoParams : createTodo,
 						id: isItem === true ? itemList : this.getNextId(),
-						val: mouseInputValueFn(p),
+						val: inputValue,
 						action:  isItem === true ? "UPDATE_TODOS_EVENT" : "ADD_TODO_EVENT"
 
 					},
 					destroy: {
 						// destroy values
-						fn: destroyFn,
+						fn: destroyTodos,
 						id: isItem === true ? itemList : destroyItemsArr(),
 						val: undefined,
 						action: "DESTROY_TODOS_EVENT"
