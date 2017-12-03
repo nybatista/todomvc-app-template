@@ -18,24 +18,20 @@
 
 		const uiTypePath = ['data','type'];
 		const uiValPath =  ['mouse','target','value'];
+		const uiCheckboxPath = ['mouse', 'target', 'checked'];
 		let isEnterKey = R.pathEq(['mouse','keyCode'], this.ENTER_KEY);
 		let inputIsNotEmpty =  R.pathSatisfies(R.complement(R.isEmpty), uiValPath);
-		let isNotNew =  R.complement(R.pathEq(uiTypePath, 'title-new'));
-		//let newInputNotEmpty = R.both([inputIsNotEmpty, isNotNew]);
+		let isNewInput =  R.pathEq(uiTypePath, 'title-new');
 
-		let filterInputValue = R.allPass([isEnterKey, inputIsNotEmpty, R.pathEq(uiTypePath, 'title-new')]);
+		const filterInputValue = R.allPass([isEnterKey, inputIsNotEmpty, isNewInput]);
+		const filterTodoInput = R.allPass([isEnterKey, R.complement(isNewInput)]);
+		const filterUiBtns = R.complement(R.pathSatisfies(R.startsWith('title'), uiTypePath));
 
-
-		let filterTodoInput = R.allPass([isEnterKey, isNotNew]);
-		const checkForBtnEvents = R.complement(R.pathSatisfies(R.startsWith('title'), uiTypePath));
-
-		const filterUIElements = R.anyPass([checkForBtnEvents, filterInputValue, filterTodoInput]);
+		const filterAllTodoEvents = R.anyPass([filterUiBtns, filterInputValue, filterTodoInput]);
 
 
 		this.ui$ = this.getChannel("UI")
-			.do(p=> console.log(R.pathEq(uiTypePath, 'title-new')(p), isNotNew(p)))
-			//.do(p => console.log('p data is ',p.data.mouse.value === undefined, p.data.type==='title-new',p.data.mouse.value, p.data.type) )
-			.filter(filterUIElements)
+			.filter(filterAllTodoEvents)
 			.map(p=>{
 				const obj = R.clone(this.localStorageObj);
 				return todoParser(p, obj);
@@ -44,10 +40,12 @@
 		;
 
 
-		// TODOS PARSING
 
+		// TODOS PARSING
+		this.liItems = document.querySelectorAll('.todo-list li');
+		const getSelectedLiItems = () => R.map(el => el.classList.contains('completed')(this.liItems));
 		const getCompletedAllItemsBool = ()=>!R.all(R.equals(true), R.map(x=>x.classList.contains('completed'))(document.querySelectorAll('.todo-list li')));
-		const getCompletedItemBool =  R.pathEq(['mouse','target','checked'], true);
+		const getCompletedItemBool =  R.pathEq(uiCheckboxPath, true);
 
 
 		// PULL ITEMS TO MUTATE
