@@ -20,16 +20,20 @@
 		const uiValPath =  ['mouse','target','value'];
 		let isEnterKey = R.pathEq(['mouse','keyCode'], this.ENTER_KEY);
 		let inputIsNotEmpty =  R.pathSatisfies(R.complement(R.isEmpty), uiValPath);
-		let isNotNew =  R.complement(R.pathEq('title-new', uiTypePath));
-		let newInputNotEmpty = R.both([inputIsNotEmpty, isNotNew]);
+		let isNotNew =  R.complement(R.pathEq(uiTypePath, 'title-new'));
+		//let newInputNotEmpty = R.both([inputIsNotEmpty, isNotNew]);
 
-		let filterInputValue = R.allPass([isEnterKey, newInputNotEmpty]);
+		let filterInputValue = R.allPass([isEnterKey, inputIsNotEmpty, R.pathEq(uiTypePath, 'title-new')]);
+
+
+		let filterTodoInput = R.allPass([isEnterKey, isNotNew]);
 		const checkForBtnEvents = R.complement(R.pathSatisfies(R.startsWith('title'), uiTypePath));
 
-		const filterUIElements = R.either(checkForBtnEvents, filterInputValue);
+		const filterUIElements = R.anyPass([checkForBtnEvents, filterInputValue, filterTodoInput]);
 
 
 		this.ui$ = this.getChannel("UI")
+			.do(p=> console.log(R.pathEq(uiTypePath, 'title-new')(p), isNotNew(p)))
 			//.do(p => console.log('p data is ',p.data.mouse.value === undefined, p.data.type==='title-new',p.data.mouse.value, p.data.type) )
 			.filter(filterUIElements)
 			.map(p=>{
@@ -61,7 +65,7 @@
 
 		const todoParser = (p,o) => {
 			console.log('todo parser ',p,o);
-			console.log(isNotNew(p), p.data.type,' p data is ',R.isEmpty(p.mouse.target.value), p.data.type==='title-new',p.mouse.target.value, p.data.type)
+			//console.log(newInputNotEmpty(p),  R.path(uiTypePath, p), p.data.type==='title-new', R.pathEq(uiTypePath, 'title-new')(p),isNotNew(p), p.data.type,' p data is ',R.isEmpty(p.mouse.target.value), p.data.type==='title-new',p.mouse.target.value, p.data.type)
 			let key = R.head(R.split('-', p.data.type));
 			const itemList = R.of(p.data.id);
 			const isItem = R.isNil(R.head(itemList)) === false;
