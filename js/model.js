@@ -39,7 +39,7 @@ class TodosModel extends spyne.ChannelsBase {
 
     // TODOS PARSING
     const getLiEls = (c = '') => document.querySelectorAll(`.todo-list li${c}`);
-    const getSelectedLiItems = () => R.map(el => el.classList.contains('completed')(getLiEls()));
+    // const getSelectedLiItems = () => R.map(el => el.classList.contains('completed')(getLiEls()));
     const getAllCompletedItemsBool = () => !R.all(R.equals(true), R.map(x => x.classList.contains('completed'))(getLiEls()));
     const getCompletedItemBool =  R.pathEq(uiCheckboxPath, true);
 
@@ -71,7 +71,7 @@ class TodosModel extends spyne.ChannelsBase {
       key = todoInputIsEmpty === true ? 'destroy' : key;
 
       const getData = k => {
-				 const data = {
+        const data = {
           completed: {
             fn: updateTodoParams,
             id: isItem === true ? itemList : allListArr(p),
@@ -96,12 +96,11 @@ class TodosModel extends spyne.ChannelsBase {
 
           }
         };
-
-				 return Object.assign({key}, data[key]);
+        return Object.assign({key}, data[key]);
       };
 
       const output = (args, o) => {
-        const {key, action, val, id, fn } = args;
+        const { key, action, val, id, fn } = args;
         const obj = fn(key, val, id, o);
         const payload = {key, id, val, action};
         return {action, payload, obj};
@@ -121,10 +120,10 @@ class TodosModel extends spyne.ChannelsBase {
     return String('0').repeat(padNum) + num;
   }
 
-	 getHighestIdNum() {
-		 const getNum =  R.compose(R.defaultTo(0), parseInt, R.last, R.pluck('id'));
-		 return getNum(this.localStorageObj);
-	 }
+  getHighestIdNum() {
+  	const getNum =  R.compose(R.defaultTo(0), parseInt, R.last, R.pluck('id'));
+  	return getNum(this.localStorageObj);
+  }
 
   onSendStream(data) {
     const {action, payload, obj} = data;
@@ -137,7 +136,7 @@ class TodosModel extends spyne.ChannelsBase {
   }
 
   getStorageItems() {
-		 return JSON.parse(localStorage.getItem(this.STORAGE_KEY)) || this.setStorage();
+  	return JSON.parse(localStorage.getItem(this.STORAGE_KEY)) || this.setStorage();
   }
 
   setStorage(obj = []) {
