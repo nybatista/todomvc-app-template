@@ -16,21 +16,28 @@
 
 		this.ENTER_KEY = 13;
 
-
+		const uiTypePath = ['data','type'];
+		const uiValPath =  ['mouse','target','value'];
 		let isEnterKey = R.pathEq(['mouse','keyCode'], this.ENTER_KEY);
-		let inputIsNotEmpty =  R.pathSatisfies(R.complement(R.isEmpty), ['mouse','target','value']);
-		let filterInputValue = R.allPass([isEnterKey, inputIsNotEmpty]);
-		const checkForBtnEvents = R.complement(R.pathSatisfies(R.startsWith('title'), ['data','type']));
+		let inputIsNotEmpty =  R.pathSatisfies(R.complement(R.isEmpty), uiValPath);
+		let isNotNew =  R.complement(R.pathEq('title-new', uiTypePath));
+		let newInputNotEmpty = R.both([inputIsNotEmpty, isNotNew]);
+
+		let filterInputValue = R.allPass([isEnterKey, newInputNotEmpty]);
+		const checkForBtnEvents = R.complement(R.pathSatisfies(R.startsWith('title'), uiTypePath));
 
 		const filterUIElements = R.either(checkForBtnEvents, filterInputValue);
 
 
 		this.ui$ = this.getChannel("UI")
+			//.do(p => console.log('p data is ',p.data.mouse.value === undefined, p.data.type==='title-new',p.data.mouse.value, p.data.type) )
 			.filter(filterUIElements)
 			.map(p=>{
 				const obj = R.clone(this.localStorageObj);
 				return todoParser(p, obj);
-			});
+			})
+			//.subscribe(p => console.log("subscribed: ",p));
+		;
 
 
 		// TODOS PARSING
@@ -54,10 +61,18 @@
 
 		const todoParser = (p,o) => {
 			console.log('todo parser ',p,o);
-			const key = R.head(R.split('-', p.data.type));
+			console.log(isNotNew(p), p.data.type,' p data is ',R.isEmpty(p.mouse.target.value), p.data.type==='title-new',p.mouse.target.value, p.data.type)
+			let key = R.head(R.split('-', p.data.type));
 			const itemList = R.of(p.data.id);
 			const isItem = R.isNil(R.head(itemList)) === false;
 			const mouseInputValueFn = p => p.mouse.target.value;
+			const todoInputIsEmpty = p.data.type === 'title-item' && R.isEmpty(p.mouse.target.value);
+
+			if (todoInputIsEmpty === true){
+				key = 'destroy';
+			}
+
+			console.log("TODO INPUT EMPTY ",todoInputIsEmpty);
 
 
 			const getData = k => {
