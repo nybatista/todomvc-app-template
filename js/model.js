@@ -127,11 +127,7 @@ class TodosModel extends spyne.ChannelsBase {
 
   onSendStream(data) {
     const {action, payload, obj} = data;
-
-    console.log('DATA ', action, payload, obj);
-
     this.observer$.next({action, payload});
-
     this.localStorageObj = this.setStorage(obj);
   }
 

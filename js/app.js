@@ -1,9 +1,5 @@
 (function(window) {
   'use strict';
-  // Your starting point. Enjoy the ride!
-
-  // console.log(window.document.readyState);
-
   new Spyne();
 
   class App extends Spyne.ViewStream {
@@ -39,7 +35,6 @@
     onModelAction(p) {
       const {action, payload} = p;
       this.sendEventsDownStream(action, p);
-
       if (action === 'INIT_TODOS_EVENT') {
         this.onInitTodos(p.payload);
       } else if (action === 'ADD_TODO_EVENT') {
@@ -92,15 +87,11 @@
       this.classList = this.settings.el.querySelector('ul.todo-list').classList;
       this.countEl = document.querySelector('footer span.todo-count');
       this.menuEl = document.querySelectorAll('ul.filters li');
-
       this.getChannel('MODEL')
         .subscribe(p => this.onModelAction(p));
-
       this.getChannel('ROUTE')
         .subscribe(p => this.onRouteChanged(p));
-
       this.todoCountEl = document.querySelector('span.todo-count strong');
-
       new Spyne.ViewStreamBroadcaster(this.settings, this.broadcastEvents);
     }
   }
