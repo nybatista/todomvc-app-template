@@ -59,7 +59,7 @@ class TodosModel extends spyne.ChannelsBase {
     const createTodo = (key, title, id, obj, completed = false) => R.append({id, title, completed}, obj);
 
     const todoParser = (p, o) => {
-     // console.log('todo parser ', p, o);
+      // console.log('todo parser ', p, o);
       // console.log(newInputNotEmpty(p),  R.path(uiTypePath, p), p.data.type==='title-new', R.pathEq(uiTypePath, 'title-new')(p),isNotNew(p), p.data.type,' p data is ',R.isEmpty(p.mouse.target.value), p.data.type==='title-new',p.mouse.target.value, p.data.type)
       let key = R.head(R.split('-', p.data.type));
       const itemList = R.of(p.data.id);
@@ -121,8 +121,8 @@ class TodosModel extends spyne.ChannelsBase {
   }
 
   getHighestIdNum() {
-  	const getNum =  R.compose(R.defaultTo(0), parseInt, R.last, R.pluck('id'));
-  	return getNum(this.localStorageObj);
+    const getNum =  R.compose(R.defaultTo(0), parseInt, R.last, R.pluck('id'));
+    return getNum(this.localStorageObj);
   }
 
   onSendStream(data) {
@@ -132,7 +132,7 @@ class TodosModel extends spyne.ChannelsBase {
   }
 
   getStorageItems() {
-  	return JSON.parse(localStorage.getItem(this.STORAGE_KEY)) || this.setStorage();
+    return JSON.parse(localStorage.getItem(this.STORAGE_KEY)) || this.setStorage();
   }
 
   setStorage(obj = []) {
