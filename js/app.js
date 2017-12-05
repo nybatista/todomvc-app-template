@@ -15,14 +15,7 @@
       ];
     }
 
-    extendedStateMethods() {
-      return [
-		  ['INIT_TODOS_EVENT', 'onModelInit'],
-		  ['ADD_TODO_EVENT', 'onAddTodo'],
-		  ['UPDATE_TODOS_EVENT', 'onUpdateTodo'],
-		  ['DESTROY_TODOS_EVENT', 'onUpdateTodo']
-      ];
-    }
+
     onInitTodos(p) {
     	console.log(' p is ', p);
       p.forEach(this.addTodo.bind(this));
@@ -36,7 +29,7 @@
       this.settings.el.querySelector('.new-todo').value = '';
     }
 
-    onModelInit(p) {
+/*    onModelInit(p) {
       console.log(' p is ', p);
 
       const {action, payload} = p;
@@ -60,7 +53,7 @@
       const {action, payload} = p;
       this.sendEventsDownStream(action, p);
       this.updateTextCount();
-    }
+    }*/
     onRouteChanged(p) {
       const selectedClass = p.data.hashValue;
       const routesArr = ['active', 'completed'];
@@ -98,12 +91,30 @@
       this.countEl.innerHTML = `<strong>${num}</strong>${itemsStr}`;
     }
 
+	  onModelAction(p){
+		  const {action, payload} = p;
+		  this.sendEventsDownStream(action,p);
+
+		  if (action === "INIT_TODOS_EVENT"){
+			  this.onInitTodos(p.payload);
+		  } else if (action === "ADD_TODO_EVENT"){
+			  payload['title'] = payload.val;
+			  this.addTodo(payload);
+			  this.clearInput();
+
+		  }
+
+		  this.updateTextCount();
+
+	  }
+
 
     afterRender() {
       this.classList = this.settings.el.querySelector('ul.todo-list').classList;
       this.countEl = document.querySelector('footer span.todo-count');
       this.menuEl = document.querySelectorAll('ul.filters li');
-      this.addChannel('MODEL');
+      this.getChannel("MODEL")
+		  .subscribe(p => this.onModelAction(p));
 
       this.getChannel('ROUTE')
         .subscribe(p => this.onRouteChanged(p));

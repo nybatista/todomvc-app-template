@@ -59,7 +59,7 @@ class TodosModel extends spyne.ChannelsBase {
     const createTodo = (key, title, id, obj, completed = false) => R.append({id, title, completed}, obj);
 
     const todoParser = (p, o) => {
-      console.log('todo parser ', p, o);
+     // console.log('todo parser ', p, o);
       // console.log(newInputNotEmpty(p),  R.path(uiTypePath, p), p.data.type==='title-new', R.pathEq(uiTypePath, 'title-new')(p),isNotNew(p), p.data.type,' p data is ',R.isEmpty(p.mouse.target.value), p.data.type==='title-new',p.mouse.target.value, p.data.type)
       let key = R.head(R.split('-', p.data.type));
       const itemList = R.of(p.data.id);

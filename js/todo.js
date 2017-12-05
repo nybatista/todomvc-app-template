@@ -36,7 +36,7 @@ class Todo extends spyne.ViewStream {
   }
 
   onRemoveTodosEvent(p) {
-	  console.log("TODOS LISTEN REMOVE ",p);
+	  //console.log("TODOS LISTEN REMOVE ",p);
 
 	  let isLocalUpdateFilter = R.contains(this.id, p.payload.id);
     if (isLocalUpdateFilter === true) {
@@ -46,7 +46,7 @@ class Todo extends spyne.ViewStream {
   }
 
   onTodosEvent(p) {
-  	console.log("TODOS LISTEN UPDATE",p);
+  	//console.log("TODOS LISTEN UPDATE",p);
     let isLocalUpdateFilter = R.contains(this.id, p.payload.id);
 
     if (isLocalUpdateFilter === true) {
