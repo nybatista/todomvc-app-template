@@ -29,31 +29,6 @@
       this.settings.el.querySelector('.new-todo').value = '';
     }
 
-/*    onModelInit(p) {
-      console.log(' p is ', p);
-
-      const {action, payload} = p;
-      this.onInitTodos(p.payload);
-      this.sendEventsDownStream(action, p);
-    }
-
-    onAddTodo(p) {
-      console.log(' p is ', p);
-
-      const {action, payload} = p;
-      payload['title'] = payload.val;
-      this.addTodo(payload);
-      this.clearInput();
-      this.sendEventsDownStream(action, p);
-    }
-
-    onUpdateTodo(p) {
-      console.log(' p is ', p);
-
-      const {action, payload} = p;
-      this.sendEventsDownStream(action, p);
-      this.updateTextCount();
-    }*/
     onRouteChanged(p) {
       const selectedClass = p.data.hashValue;
       const routesArr = ['active', 'completed'];
