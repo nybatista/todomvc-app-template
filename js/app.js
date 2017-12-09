@@ -5,7 +5,6 @@
   class App extends Spyne.ViewStream {
     constructor(props = {}) {
       super(props);
-      this.afterRender();
     }
     broadcastEvents() {
       return [
@@ -14,9 +13,7 @@
         ['button.clear-completed', 'click']
       ];
     }
-
     onInitTodos(p) {
-    	console.log(' p is ', p);
       p.forEach(this.addTodo.bind(this));
     }
 
