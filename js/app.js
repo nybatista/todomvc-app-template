@@ -26,7 +26,7 @@
       this.appendView(new Todo({data}), '.todo-list');
     }
     clearInput() {
-      this.settings.el.querySelector('.new-todo').value = '';
+      this.props.el.querySelector('.new-todo').value = '';
     }
 
     onRouteChanged(p) {
@@ -58,9 +58,9 @@
       const itemsStr = num <= 1 ? ' item left' : ' items left';
 
       if (num === 0) {
-        this.settings.el.classList.add('hide-elements');
+        this.props.el.classList.add('hide-elements');
       } else {
-        this.settings.el.classList.remove('hide-elements');
+        this.props.el.classList.remove('hide-elements');
       }
 
       this.countEl.innerHTML = `<strong>${num}</strong>${itemsStr}`;
@@ -85,7 +85,7 @@
 
 
     afterRender() {
-      this.classList = this.settings.el.querySelector('ul.todo-list').classList;
+      this.classList = this.props.el.querySelector('ul.todo-list').classList;
       this.countEl = document.querySelector('footer span.todo-count');
       this.menuEl = document.querySelectorAll('ul.filters li');
       this.getChannel("MODEL")
@@ -94,7 +94,7 @@
       this.getChannel('ROUTE')
         .subscribe(p => this.onRouteChanged(p));
       this.todoCountEl = document.querySelector('span.todo-count strong');
-      new Spyne.ViewStreamBroadcaster(this.settings, this.broadcastEvents);
+      new Spyne.ViewStreamBroadcaster(this.props, this.broadcastEvents);
     }
   }
 

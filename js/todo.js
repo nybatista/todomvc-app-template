@@ -55,35 +55,35 @@ class Todo extends spyne.ViewStream {
   }
 
   updateDom(k, v) {
-    const cList = this.settings.el.classList;
+    const cList = this.props.el.classList;
 
     if (k === 'completed') {
-      this.settings.data.completed = v;
+      this.props.data.completed = v;
       const classUpdate = v === true ? R.invoker(1, 'add') : R.invoker(1, 'remove');
       classUpdate(k, cList);
       this.updateCheckBox();
     } else if (k === 'title') {
-      const label = this.settings.el.querySelector('div label');
+      const label = this.props.el.querySelector('div label');
       label.textContent = v;
       cList.remove('editing');
     }
   }
 
   changeEditState(bool = false) {
-    this.settings.el.classList.toggle('editing');
+    this.props.el.classList.toggle('editing');
   }
 
   updateCheckBox() {
-    this.settings.el.querySelector('input.toggle').checked = this.settings.data.completed;
+    this.props.el.querySelector('input.toggle').checked = this.props.data.completed;
   }
 
   afterRender() {
-    if (this.settings.data.completed === true) {
-      this.settings.el.classList.add('completed');
+    if (this.props.data.completed === true) {
+      this.props.el.classList.add('completed');
     }
 
     this.updateCheckBox();
-    let filterLocalUIEvents = p => p.data.cid === this.settings.id && p.data.event === 'dblClick';
+    let filterLocalUIEvents = p => p.data.cid === this.props.id && p.data.event === 'dblClick';
 
     this.ui$ = this.getChannel('UI')
       .filter(filterLocalUIEvents)
