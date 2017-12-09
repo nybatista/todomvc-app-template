@@ -28,16 +28,14 @@ class Todo extends spyne.ViewStream {
   extendedStateMethods() {
     return [
       ['PARENT_UPDATE_TODOS_EVENT', 'onTodosEvent'],
-     		['PARENT_DESTROY_TODOS_EVENT', 'onRemoveTodosEvent'],
-		['PARENT_PARENT_UPDATE_TODOS_EVENT', 'onTodosEvent'],
-		['PARENT_PARENT_DESTROY_TODOS_EVENT', 'onRemoveTodosEvent']
+      ['PARENT_DESTROY_TODOS_EVENT', 'onRemoveTodosEvent'],
+      ['PARENT_PARENT_UPDATE_TODOS_EVENT', 'onTodosEvent'],
+      ['PARENT_PARENT_DESTROY_TODOS_EVENT', 'onRemoveTodosEvent']
 
     ];
   }
 
   onRemoveTodosEvent(p) {
-	  //console.log("TODOS LISTEN REMOVE ",p);
-
 	  let isLocalUpdateFilter = R.contains(this.id, p.payload.id);
     if (isLocalUpdateFilter === true) {
       this.ui$.unsubscribe();
@@ -46,7 +44,6 @@ class Todo extends spyne.ViewStream {
   }
 
   onTodosEvent(p) {
-  	//console.log("TODOS LISTEN UPDATE",p);
     let isLocalUpdateFilter = R.contains(this.id, p.payload.id);
 
     if (isLocalUpdateFilter === true) {
@@ -56,7 +53,6 @@ class Todo extends spyne.ViewStream {
 
   updateDom(k, v) {
     const cList = this.props.el.classList;
-
     if (k === 'completed') {
       this.props.data.completed = v;
       const classUpdate = v === true ? R.invoker(1, 'add') : R.invoker(1, 'remove');

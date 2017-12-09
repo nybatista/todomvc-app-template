@@ -15,7 +15,6 @@
       ];
     }
 
-
     onInitTodos(p) {
     	console.log(' p is ', p);
       p.forEach(this.addTodo.bind(this));
@@ -66,30 +65,25 @@
       this.countEl.innerHTML = `<strong>${num}</strong>${itemsStr}`;
     }
 
-	  onModelAction(p){
+	  onModelAction(p) {
 		  const {action, payload} = p;
-		  this.sendEventsDownStream(action,p);
-
-		  if (action === "INIT_TODOS_EVENT"){
+		  this.sendEventsDownStream(action, p);
+		  if (action === 'INIT_TODOS_EVENT') {
 			  this.onInitTodos(p.payload);
-		  } else if (action === "ADD_TODO_EVENT"){
+		  } else if (action === 'ADD_TODO_EVENT') {
 			  payload['title'] = payload.val;
 			  this.addTodo(payload);
 			  this.clearInput();
-
 		  }
-
 		  this.updateTextCount();
-
-	  }
+    }
 
     afterRender() {
       this.classList = this.props.el.querySelector('ul.todo-list').classList;
       this.countEl = document.querySelector('footer span.todo-count');
       this.menuEl = document.querySelectorAll('ul.filters li');
-      this.getChannel("MODEL")
+      this.getChannel('MODEL')
 		  .subscribe(p => this.onModelAction(p));
-
       this.getChannel('ROUTE')
         .subscribe(p => this.onRouteChanged(p));
       this.todoCountEl = document.querySelector('span.todo-count strong');
