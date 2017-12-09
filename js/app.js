@@ -3,8 +3,8 @@
   new Spyne();
 
   class App extends Spyne.ViewStream {
-    constructor(opts = {}) {
-      super(opts);
+    constructor(props = {}) {
+      super(props);
       this.afterRender();
     }
     broadcastEvents() {
@@ -82,7 +82,6 @@
 		  this.updateTextCount();
 
 	  }
-
 
     afterRender() {
       this.classList = this.props.el.querySelector('ul.todo-list').classList;

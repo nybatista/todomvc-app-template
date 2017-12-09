@@ -1,18 +1,18 @@
 class Todo extends spyne.ViewStream {
-  constructor(opts = {}) {
-    opts.tagName = 'li';
-    opts.tmpl = document.querySelector('.todo-tmpl');
-    opts['class'] = ['todos'];
+  constructor(props = {}) {
+    props.tagName = 'li';
+    props.tmpl = document.querySelector('.todo-tmpl');
+    props['class'] = ['todos'];
 
     R.when(
       R.propEq('key', 'title'),
       R.assoc('title', 'val')
-    )(opts.data);
+    )(props.data);
 
-    opts['dataset'] = opts.data;
-    super(opts);
-    this.id = opts.data.id;
-    this.title = opts.data.title;
+    props['dataset'] = props.data;
+    super(props);
+    this.id = props.data.id;
+    this.title = props.data.title;
   }
 
   broadcastEvents() {
