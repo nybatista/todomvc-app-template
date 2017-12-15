@@ -64,7 +64,7 @@
 
 	  onModelAction(p) {
 		  const {action, payload} = p;
-		  this.sendEventsDownStream(action, p);
+		  this.sendEventsDownStream(p);
 		  if (action === 'INIT_TODOS_EVENT') {
 			  this.onInitTodos(p.payload);
 		  } else if (action === 'ADD_TODO_EVENT') {

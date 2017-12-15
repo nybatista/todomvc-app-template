@@ -27,11 +27,8 @@ class Todo extends spyne.ViewStream {
 
   extendedStateMethods() {
     return [
-      ['PARENT_UPDATE_TODOS_EVENT', 'onTodosEvent'],
-      ['PARENT_DESTROY_TODOS_EVENT', 'onRemoveTodosEvent'],
-      ['PARENT_PARENT_UPDATE_TODOS_EVENT', 'onTodosEvent'],
-      ['PARENT_PARENT_DESTROY_TODOS_EVENT', 'onRemoveTodosEvent']
-
+    	['UPDATE_TODOS_EVENT', 'onTodosEvent'],
+		['DESTROY_TODOS_EVENT', 'onRemoveTodosEvent']
     ];
   }
 
