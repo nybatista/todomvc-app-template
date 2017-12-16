@@ -15,7 +15,9 @@ body .todo-list.active li.completed {
 	display:none;
 }
 
-
+body .todo-list li.orange{
+	background-color:orange;
+}
 
 /*
 
