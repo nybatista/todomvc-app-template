@@ -17,47 +17,27 @@
       p.forEach(this.addTodo.bind(this));
     }
 
-    addTodo(d) {
-      const data = d;
+    addTodo(data) {
       this.appendView(new Todo({data}), '.todo-list');
     }
     clearInput() {
-      this.props.el.querySelector('.new-todo').value = '';
+      this.props.el$.query('.new-todo').el.value ='';
     }
 
     onRouteChanged(p) {
-      const selectedClass = p.data.hashValue;
-      const routesArr = ['active', 'completed'];
-      const classList = this.classList;
-      const removeClass = c => classList.remove(c);
-      const addClass = c => classList.add(c);
-      const hasClass = R.contains(R.__, classList);
-      const isSelectedClass = R.equals(R.__, selectedClass);
-
-      const checkState = R.cond([
-        [isSelectedClass, addClass],
-        [hasClass, removeClass]
-      ]);
-      routesArr.forEach(checkState);
-      this.updateMenu(selectedClass);
+    	const selectedClass = R.defaultTo('', p.data.hashValue);
+    	this.props.el$.query('ul.todo-list').setClass( `todo-list ${selectedClass}`);
+    	this.updateMenu(p.data.hashValue);
     }
 
     updateMenu(route = 'home') {
-      const selector = `footer ul li a[data-route=${route}]`;
-      let removeSelected = el => el.classList.remove('selected');
-      document.querySelectorAll('footer ul li a').forEach(removeSelected);
-
-      document.querySelectorAll(selector)[0].classList.add('selected');
+      const selectedItem = `[data-route=${route}]`;
+		this.props.el$.query('footer ul li a').setActiveItem(selectedItem, 'selected');
     }
     updateTextCount() {
       const num = document.querySelectorAll('.todo-list li').length;
-      const itemsStr = num <= 1 ? ' item left' : ' items left';
-
-      if (num === 0) {
-        this.props.el.classList.add('hide-elements');
-      } else {
-        this.props.el.classList.remove('hide-elements');
-      }
+      const itemsStr = num === 1 ? ' item left' : ' items left';
+    	this.props.el$.setClassByBool(num ===0 , 'hide-elements');
 
       this.countEl.innerHTML = `<strong>${num}</strong>${itemsStr}`;
     }
