@@ -1,10 +1,10 @@
 class TodosModel extends spyne.ChannelsBase {
   constructor() {
     super();
-    R = window.R;
+		const R = window.R;
     this.props.name = 'MODEL';
 
-    this.STORAGE_KEY = 'todos-yaya';
+		this.STORAGE_KEY = 'todos-spyne';
     this.localStorageObj = this.getStorageItems();
 
     window.lStorage = this.localStorageObj;
@@ -39,7 +39,6 @@ class TodosModel extends spyne.ChannelsBase {
 
     // TODOS PARSING
     const getLiEls = (c = '') => document.querySelectorAll(`.todo-list li${c}`);
-    // const getSelectedLiItems = () => R.map(el => el.classList.contains('completed')(getLiEls()));
     const getAllCompletedItemsBool = () => !R.all(R.equals(true), R.map(x => x.classList.contains('completed'))(getLiEls()));
     const getCompletedItemBool =  R.pathEq(uiCheckboxPath, true);
 
@@ -48,7 +47,6 @@ class TodosModel extends spyne.ChannelsBase {
     const destroyItemsArr = () => R.map(el => el.dataset.id, getLiEls('.todos.completed'));
 
     // MAIN UPDATE METHODS
-
     const updateTodoParams = (key, val, id, obj) => {
       const itemInList = R.propSatisfies(R.contains(R.__, id), 'id');
       const updateParams = R.when(itemInList, R.assoc(key, val));
@@ -59,13 +57,10 @@ class TodosModel extends spyne.ChannelsBase {
     const createTodo = (key, title, id, obj, completed = false) => R.append({id, title, completed}, obj);
 
     const todoParser = (p, o) => {
-      // console.log('todo parser ', p, o);
-      // console.log(newInputNotEmpty(p),  R.path(uiTypePath, p), p.data.type==='title-new', R.pathEq(uiTypePath, 'title-new')(p),isNotNew(p), p.data.type,' p data is ',R.isEmpty(p.mouse.target.value), p.data.type==='title-new',p.mouse.target.value, p.data.type)
       let key = R.head(R.split('-', p.data.type));
       const itemList = R.of(p.data.id);
       const isItem = R.isNil(R.head(itemList)) === false;
       const inputValue = R.path(uiValPath, p);
-      // const mouseInputValueFn = p => p.mouse.target.value;
       const todoInputIsEmpty = p.data.type === 'title-item' && R.isEmpty(inputValue);
 
       key = todoInputIsEmpty === true ? 'destroy' : key;
