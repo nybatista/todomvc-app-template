@@ -13,7 +13,7 @@
         ['button.clear-completed', 'click']
       ];
     }
-		extendedStateMethods() {
+		addActionMethods() {
 			return [
 				['INIT_TODOS_EVENT', 'onInitTodos'],
 				['ADD_TODO_EVENT', 'addTodo'],
@@ -57,7 +57,6 @@
 		onModelAction(p) {
 			this.updateTextCount();
     }
-
     afterRender() {
 			this.counterText = this.props.el$.query('footer span.todo-count');
 			this.addChannel("MODEL", true);
