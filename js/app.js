@@ -13,16 +13,25 @@
         ['button.clear-completed', 'click']
       ];
     }
+		extendedStateMethods() {
+			return [
+				['INIT_TODOS_EVENT', 'onInitTodos'],
+				['ADD_TODO_EVENT', 'addTodo'],
+				['UPDATE_TODOS_EVENT', 'downStream'],
+				['DESTROY_TODOS_EVENT', 'onModelAction']
+			];
+		}
     onInitTodos(p) {
-      p.forEach(this.addTodo.bind(this));
+    	const payload = p.payload;
+			const addTodo = data => this.appendView(new Todo({data}), '.todo-list');
+			payload.forEach(addTodo);
     }
-
-    addTodo(data) {
-      this.appendView(new Todo({data}), '.todo-list');
-    }
-    clearInput() {
-			this.props.el$.query('.new-todo').el.value = '';
-    }
+		addTodo(p) {
+			let data = p.payload;
+			data['title'] = data.val;
+			this.appendView(new Todo({data}), '.todo-list');
+			this.clearInput();
+		}
 
     onRouteChanged(p) {
     	const selectedClass = R.defaultTo('', p.data.hashValue);
@@ -42,24 +51,16 @@
 			this.props.el$.setClassOnBool('hide-elements', num === 0);
 			this.counterText.el.innerHTML = `<strong>${num}</strong>${itemsStr}`;
     }
-
+		clearInput() {
+			this.props.el$.query('.new-todo').el.value = '';
+		}
 		onModelAction(p) {
-			const {action, payload} = p;
-			this.sendEventsDownStream(p);
-			if (action === 'INIT_TODOS_EVENT') {
-				this.onInitTodos(p.payload);
-			} else if (action === 'ADD_TODO_EVENT') {
-				payload['title'] = payload.val;
-				this.addTodo(payload);
-				this.clearInput();
-			}
 			this.updateTextCount();
     }
 
     afterRender() {
 			this.counterText = this.props.el$.query('footer span.todo-count');
-      this.getChannel('MODEL')
-		  .subscribe(p => this.onModelAction(p));
+			this.addChannel("MODEL", true);
       this.getChannel('ROUTE')
         .subscribe(p => this.onRouteChanged(p));
     }
