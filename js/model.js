@@ -1,10 +1,10 @@
 class TodosModel extends spyne.ChannelsBase {
   constructor() {
     super();
-		const R = window.R;
+    const R = window.R;
     this.props.name = 'MODEL';
 
-		this.STORAGE_KEY = 'todos-spyne';
+    this.STORAGE_KEY = 'todos-spyne';
     this.localStorageObj = this.getStorageItems();
 
     window.lStorage = this.localStorageObj;

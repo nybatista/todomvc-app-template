@@ -28,7 +28,7 @@ class Todo extends spyne.ViewStream {
   addActionMethods() {
     return [
     	['UPDATE_TODOS_EVENT', 'onTodosEvent'],
-			['DESTROY_TODOS_EVENT', 'onRemoveTodosEvent'],
+      ['DESTROY_TODOS_EVENT', 'onRemoveTodosEvent']
     ];
   }
 
