@@ -28,7 +28,8 @@ class Todo extends spyne.ViewStream {
   addActionMethods() {
     return [
     	['UPDATE_TODOS_EVENT', 'onTodosEvent'],
-      ['DESTROY_TODOS_EVENT', 'onRemoveTodosEvent']
+      ['DESTROY_TODOS_EVENT', 'onRemoveTodosEvent'],
+		    ['UI_EVENT_CLICK', 'changeEditState'],
     ];
   }
 
@@ -60,8 +61,9 @@ class Todo extends spyne.ViewStream {
       cList.remove('editing');
     }
   }
-  changeEditState(bool = false) {
-    this.props.el.classList.toggle('editing');
+  changeEditState(p) {
+	  let checkForLocalDblClick = p.data.cid === this.props.id && p.data.event === 'dblClick';
+		this.props.el$.setClassOnBool('editing', checkForLocalDblClick);
   }
   updateCheckBox() {
     this.props.el.querySelector('input.toggle').checked = this.props.data.completed;
@@ -72,10 +74,7 @@ class Todo extends spyne.ViewStream {
     }
 
     this.updateCheckBox();
-    let filterLocalUIEvents = p => p.data.cid === this.props.id && p.data.event === 'dblClick';
+    this.addChannel("UI");
 
-    this.ui$ = this.getChannel('UI')
-      .filter(filterLocalUIEvents)
-      .subscribe((p) => this.changeEditState(true));
   }
 }
