@@ -36,7 +36,6 @@ class Todo extends spyne.ViewStream {
   onRemoveTodosEvent(p) {
 	  let isLocalUpdateFilter = R.contains(this.id, p.payload.id);
     if (isLocalUpdateFilter === true) {
-      this.ui$.unsubscribe();
       this.onDispose();
     }
   }

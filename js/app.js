@@ -20,7 +20,8 @@
         ['INIT_TODOS_EVENT', 'onInitTodos'],
         ['ADD_TODO_EVENT', 'addTodo'],
         ['UPDATE_TODOS_EVENT', 'downStream'],
-        ['DESTROY_TODOS_EVENT', 'onModelAction']
+        ['DESTROY_TODOS_EVENT', 'onModelAction'],
+		      ['CHANNEL_ROUTE_CHANGE_EVENT', 'onRouteChanged']
       ];
     }
 
@@ -68,7 +69,7 @@
     afterRender() {
       this.counterText = this.props.el$.query('footer span.todo-count');
       this.addChannel('MODEL', true);
-      this.getChannel('ROUTE').subscribe(p => this.onRouteChanged(p));
+      this.addChannel('ROUTE');
     }
   }
 
