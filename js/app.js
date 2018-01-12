@@ -1,8 +1,8 @@
 (function(window) {
   'use strict';
-  const spyne = new Spyne();
+  const spyne = new Spynejs();
 
-  class App extends Spyne.ViewStream {
+  class App extends Spynejs.ViewStream {
     constructor(props = {}) {
       super(props);
     }
@@ -73,7 +73,7 @@
     }
   }
 
-  Spyne.registerChannel('MODEL', new TodosModel());
+  Spynejs.registerChannel('MODEL', new TodosModel());
   const app = new App({
     el: document.querySelector('.todoapp')
   });
