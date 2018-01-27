@@ -1,8 +1,8 @@
 (function(window) {
   'use strict';
-  const spyne = new Spynejs();
+  const spyne = new Spyne();
 
-  class App extends Spynejs.ViewStream {
+  class App extends Spyne.ViewStream {
     constructor(props = {}) {
       super(props);
     }
@@ -44,7 +44,7 @@
         .setClass(`todo-list ${selectedClass}`);
       this.updateMenu(p.data.hashValue);
     }
-
+u
     updateMenu(route = 'home') {
       const selectedItem = `[data-route=${route}]`;
       this.props.el$.query('footer ul li a')
@@ -73,7 +73,7 @@
     }
   }
 
-  Spynejs.registerChannel('MODEL', new TodosModel());
+  Spyne.registerChannel('MODEL', new TodosModel());
   const app = new App({
     el: document.querySelector('.todoapp')
   });
