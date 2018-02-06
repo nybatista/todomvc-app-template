@@ -44,7 +44,7 @@
         .setClass(`todo-list ${selectedClass}`);
       this.updateMenu(p.data.hashValue);
     }
-u
+
     updateMenu(route = 'home') {
       const selectedItem = `[data-route=${route}]`;
       this.props.el$.query('footer ul li a')
