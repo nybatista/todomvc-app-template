@@ -1,10 +1,30 @@
 (function(window) {
   'use strict';
-  const spyne = new Spyne();
+  console.log('spyne is what ',spyne.SpyneApp);
 
-  class App extends Spyne.ViewStream {
+  const spyneAppConfig = {
+  	channels: {
+  		ROUTE: {
+  			isHash: true,
+			  routes: {
+  				route: {
+  					keyword: 'hashVal'
+				  }
+			  }
+		  }
+	  }
+  };
+
+
+  const spyneApp = new spyne.SpyneApp(spyneAppConfig);
+
+  class App extends spyne.ViewStream {
     constructor(props = {}) {
+			props['el'] = document.querySelector('.todoapp');
       super(props);
+
+	    console.log('app is ',this);
+
     }
 
     broadcastEvents() {
@@ -17,16 +37,17 @@
 
     addActionMethods() {
       return [
-        ['INIT_TODOS_EVENT', 'onInitTodos'],
+        ['CHANNEL_MODEL_INIT_TODOS_EVENT', 'onInitTodos'],
         ['ADD_TODO_EVENT', 'addTodo'],
         ['UPDATE_TODOS_EVENT', 'downStream'],
         ['DESTROY_TODOS_EVENT', 'onModelAction'],
-		      ['CHANNEL_ROUTE_CHANGE_EVENT', 'onRouteChanged']
+		      ['CHANNEL_ROUTE_.*', 'onRouteChanged']
       ];
     }
 
     onInitTodos(p) {
-      const payload = p.payload;
+    	console.log('on init todos ',p);
+      const payload = p.channelPayload;
       const addTodo = data => this.appendView(new Todo({data}), '.todo-list');
       payload.forEach(addTodo);
     }
@@ -39,10 +60,11 @@
     }
 
     onRouteChanged(p) {
-      const selectedClass = R.defaultTo('', p.data.hashValue);
+    	console.log('channel route changed ',p);
+/*      const selectedClass = R.defaultTo('', p.data.hashValue);
       this.props.el$.query('ul.todo-list')
         .setClass(`todo-list ${selectedClass}`);
-      this.updateMenu(p.data.hashValue);
+      this.updateMenu(p.data.hashValue);*/
     }
 
     updateMenu(route = 'home') {
@@ -68,13 +90,14 @@
 
     afterRender() {
       this.counterText = this.props.el$.query('footer span.todo-count');
-      this.addChannel('MODEL', true);
-      this.addChannel('ROUTE');
+	    this.addChannel('ROUTE');
+      this.addChannel('MODEL');
+
     }
   }
 
   Spyne.registerChannel('MODEL', new TodosModel());
-  const app = new App({
+  const app = new App(/*{
     el: document.querySelector('.todoapp')
-  });
+  }*/);
 })(window);

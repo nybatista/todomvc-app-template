@@ -65,7 +65,8 @@ class Todo extends spyne.ViewStream {
 		this.props.el$.setClassOnBool('editing', checkForLocalDblClick);
   }
   updateCheckBox() {
-    this.props.el.querySelector('input.toggle').checked = this.props.data.completed;
+  	console.log('props is ',this.props.el$.query);
+    //this.props.el$.query('input.toggle').el.checked = this.props.data.completed;
   }
   afterRender() {
     if (this.props.data.completed === true) {

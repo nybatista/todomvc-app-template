@@ -1,20 +1,29 @@
 class TodosModel extends spyne.ChannelsBase {
-  constructor() {
-    super();
+  constructor(props={}) {
     const R = window.R;
-    this.props.name = 'MODEL';
-
-    this.STORAGE_KEY = 'todos-spyne';
+	  super();
+	  this.props.name = 'MODEL';
+	  this.STORAGE_KEY = 'todos-spyne';
     this.localStorageObj = this.getStorageItems();
 
     window.lStorage = this.localStorageObj;
+
+
+
+	  this.observer$ = new Rx.BehaviorSubject();
+    window.setTimeout(this.init.bind(this),0);
+    //this.init();
+
+
+/*
     this.observer$ = new Rx.BehaviorSubject(
       {
         action: 'INIT_TODOS_EVENT',
         payload: this.localStorageObj
       });
+*/
 
-    this.ENTER_KEY = 13;
+/*    this.ENTER_KEY = 13;
 
     const uiTypePath = ['data', 'type'];
     const uiValPath =  ['mouse', 'target', 'value'];
@@ -28,17 +37,18 @@ class TodosModel extends spyne.ChannelsBase {
     const filterTodoInput = R.allPass([isEnterKey, R.complement(isNewInput)]);
     const filterUiBtns = R.complement(R.pathSatisfies(R.startsWith('title'), uiTypePath));
 
-    const filterAllTodoEvents = R.anyPass([filterUiBtns, filterInputValue, filterTodoInput]);
+    const filterAllTodoEvents = R.anyPass([filterUiBtns, filterInputValue, filterTodoInput]);*/
 
     this.ui$ = this.getChannel('UI')
-      .filter(filterAllTodoEvents)
+			 .subscribe(p=>console.log('p is ',p));
+      /*.filter(filterAllTodoEvents)
       .map(p => {
         const obj = R.clone(this.localStorageObj);
         return todoParser(p, obj);
       });
-
+*/
     // TODOS PARSING
-    const getLiEls = (c = '') => document.querySelectorAll(`.todo-list li${c}`);
+   /* const getLiEls = (c = '') => document.querySelectorAll(`.todo-list li${c}`);
     const getAllCompletedItemsBool = () => !R.all(R.equals(true), R.map(x => x.classList.contains('completed'))(getLiEls()));
     const getCompletedItemBool =  R.pathEq(uiCheckboxPath, true);
 
@@ -105,10 +115,28 @@ class TodosModel extends spyne.ChannelsBase {
     };
 
     this.ui$
-      .subscribe(p => this.onSendStream(p));
+      .subscribe(p => this.onSendStream(p));*/
   }
 
-  getNextId() {
+  init(){
+	  this.sendStreamItem(this.channelActions.CHANNEL_MODEL_INIT_TODOS_EVENT, this.localStorageObj);
+
+
+  }
+
+
+
+	getRegisteredActionsArr() {
+		return [
+			'CHANNEL_MODEL_INIT_TODOS_EVENT'
+		];
+	}
+
+	getStorageItems() {
+		return JSON.parse(localStorage.getItem(this.STORAGE_KEY)) || this.setStorage();
+	}
+
+/*  getNextId() {
     const padMaxNum = 6;
     const num = this.getHighestIdNum() + 1;
     const padNum = padMaxNum - String(num).length;
@@ -126,15 +154,13 @@ class TodosModel extends spyne.ChannelsBase {
     this.localStorageObj = this.setStorage(obj);
   }
 
-  getStorageItems() {
-    return JSON.parse(localStorage.getItem(this.STORAGE_KEY)) || this.setStorage();
-  }
+
 
   setStorage(obj = []) {
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(obj));
     return obj;
   }
   onObserversCallback(p) {
-    console.log('the val is ', p);
-  }
+   // console.log('the val is ', p);
+  }*/
 }
