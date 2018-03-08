@@ -8,11 +8,7 @@ class TodosModel extends spyne.ChannelsBase {
 
     window.lStorage = this.localStorageObj;
 
-
-
 	  this.observer$ = new Rx.BehaviorSubject();
-    window.setTimeout(this.init.bind(this),0);
-    //this.init();
 
 
 /*
@@ -118,9 +114,14 @@ class TodosModel extends spyne.ChannelsBase {
       .subscribe(p => this.onSendStream(p));*/
   }
 
-  init(){
-	  this.sendStreamItem(this.channelActions.CHANNEL_MODEL_INIT_TODOS_EVENT, this.localStorageObj);
 
+	onIncomingObserverableData(p) {
+		 console.log('the val is ', p);
+	}
+
+  initializeStream(){
+  	// CALLED AFTER STREAM IS REGISTERED FROM CHANNELBASECONTROLLER
+	  this.sendStreamItem(this.channelActions.CHANNEL_MODEL_INIT_TODOS_EVENT, this.localStorageObj);
 
   }
 

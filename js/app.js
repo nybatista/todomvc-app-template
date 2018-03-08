@@ -29,7 +29,7 @@
 
     broadcastEvents() {
       return [
-        ['.new-todo', 'keyup'],
+        ['.new-todo', 'keyup', 'local'],
         ['#toggle-all', 'click'],
         ['button.clear-completed', 'click']
       ];

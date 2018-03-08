@@ -1,7 +1,7 @@
 class Todo extends spyne.ViewStream {
   constructor(props = {}) {
     props.tagName = 'li';
-    props.tmpl = document.querySelector('.todo-tmpl');
+    props.template = document.querySelector('.todo-tmpl');
     props['class'] = ['todos'];
 
     R.when(
@@ -17,10 +17,10 @@ class Todo extends spyne.ViewStream {
 
   broadcastEvents() {
     return [
-      ['div', 'dblClick'],
-      ['input.edit', 'keyup'],
-      ['input.toggle', 'click'],
-      ['button.destroy', 'click']
+      ['div',            'dblClick',  'local'],
+      ['input.edit',     'keyup',     'local'],
+      ['input.toggle',   'change',    'local'],
+      ['button.destroy', 'click',     'local']
 
     ];
   }
@@ -29,8 +29,44 @@ class Todo extends spyne.ViewStream {
     return [
     	['UPDATE_TODOS_EVENT', 'onTodosEvent'],
       ['DESTROY_TODOS_EVENT', 'onRemoveTodosEvent'],
-		    ['UI_EVENT_CLICK', 'changeEditState'],
+	    ['CHANNEL_UI_.*', 'onUIClick']
+/*
+	    ['UI_EVENT_CLICK', 'changeEditState'],
+*/
     ];
+  }
+
+  onUpdateTitle(item){
+  	console.log('on update title');
+
+  }
+  onDestroy(item){
+  	this.sendChannelPayload('MODEL', {ubu:5});
+  	console.log('on destroy');
+  	//this.onDispose();
+  }
+
+  onUpdateCompleted(item){
+  	console.log('completed updated');
+  }
+
+  onUIClick(item){
+
+  	const methodsHash = {
+		  "destroy-item" : this.onDestroy.bind(this),
+		  "completed-item" : this.onUpdateCompleted.bind(this),
+		  "title-dbclick-item" : this.onUpdateTitle.bind(this)
+	  };
+
+  	//	const fn = methodsHash[item.channelPayload.type];
+  	//	fn(item);
+
+
+
+
+  	//const itemId = item.srcElement.cid;
+	  console.log('isLocalEvent item ',item.channelPayload);
+
   }
 
   onRemoveTodosEvent(p) {
@@ -62,17 +98,13 @@ class Todo extends spyne.ViewStream {
   }
   changeEditState(p) {
 	  let checkForLocalDblClick = p.data.cid === this.props.id && p.data.event === 'dblClick';
-		this.props.el$.setClassOnBool('editing', checkForLocalDblClick);
+		this.props.el$.toggleClass('editing', checkForLocalDblClick);
   }
   updateCheckBox() {
-  	console.log('props is ',this.props.el$.query);
-    //this.props.el$.query('input.toggle').el.checked = this.props.data.completed;
+    this.props.el$.query('input.toggle').el.checked = this.props.data.completed;
   }
   afterRender() {
-    if (this.props.data.completed === true) {
-      this.props.el.classList.add('completed');
-    }
-
+	  this.props.el$.toggleClass('completed', this.props.data.completed);
     this.updateCheckBox();
     this.addChannel("UI");
 
