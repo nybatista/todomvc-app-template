@@ -10,6 +10,13 @@ class TodosModel extends spyne.ChannelsBase {
 
 	  this.observer$ = new Rx.BehaviorSubject();
 
+	  this.getChannel("WINDOW")
+	  .filter(p=>p.action==="CHANNEL_WINDOW_BEFOREUNLOAD_EVENT")
+			  .subscribe(p=>{
+				localStorage.setItem('unloadTest', 'test val 3');
+			  console.log('window is ',p);
+	  });
+
 
 /*
     this.observer$ = new Rx.BehaviorSubject(

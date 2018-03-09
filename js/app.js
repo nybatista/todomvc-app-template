@@ -4,6 +4,10 @@
 
   const spyneAppConfig = {
   	channels: {
+  		WINDOW: {
+  			events: ['beforeunload']
+		  },
+
   		ROUTE: {
   			isHash: true,
 			  routes: {
