@@ -61,6 +61,15 @@ class Todo extends spyne.ViewStream {
 	  this.props.el$.toggleClass('editing', bool);
 
   }
+	onDestroyAllCompleted(item){
+  	if (this.props.checkBox.checked === true){
+  		this.onDispose();
+	  }
+  }
+  onUpdateAll(item){
+  	this.props.checkBox.checked = R.path(['srcElement', 'el', 'checked'], item);;
+  	this.onUpdateCompleted(item);
+  }
 
   onUpdateCompleted(item){
   	console.log('completed updated');
@@ -72,6 +81,8 @@ class Todo extends spyne.ViewStream {
   	const methodsHash = {
 		  "destroy-item" : this.onDestroy.bind(this),
 		  "completed-item" : this.onUpdateCompleted.bind(this),
+		  "completed-all" : this.onUpdateAll.bind(this),
+		  "destroy-all"    : this.onDestroyAllCompleted.bind(this),
 		  "title-dbclick-item" : this.onUpdateTitle.bind(this)
 	  };
 
