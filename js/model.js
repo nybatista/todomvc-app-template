@@ -146,6 +146,11 @@ class TodosModel extends spyne.ChannelsBase {
 		return JSON.parse(localStorage.getItem(this.STORAGE_KEY)) || this.setStorage();
 	}
 
+	setStorage(obj = []) {
+		localStorage.setItem(this.STORAGE_KEY, JSON.stringify(obj));
+		return obj;
+	}
+
 /*  getNextId() {
     const padMaxNum = 6;
     const num = this.getHighestIdNum() + 1;
@@ -166,10 +171,7 @@ class TodosModel extends spyne.ChannelsBase {
 
 
 
-  setStorage(obj = []) {
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(obj));
-    return obj;
-  }
+
   onObserversCallback(p) {
    // console.log('the val is ', p);
   }*/
