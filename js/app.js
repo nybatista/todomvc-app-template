@@ -31,6 +31,11 @@
 
     }
 
+    onChildDisposed(o,p){
+    	console.log('child has been removed ',o);
+    	this.updateTextCount()
+    }
+
     broadcastEvents() {
       return [
         ['.new-todo', 'keyup', 'local'],
@@ -94,9 +99,13 @@
 
     updateTextCount() {
       const num = document.querySelectorAll('.todo-list li').length;
-      const itemsStr = num === 1 ? ' item left' : ' items left';
+	    console.log('update count ', num);
+
+	    const itemsStr = num === 1 ? ' item left' : ' items left';
       this.props.el$.toggleClass('hide-elements', num === 0);
       this.counterText.el.innerHTML = `<strong>${num}</strong>${itemsStr}`;
+	    console.log('update count after ', num);
+
     }
 
     clearInput() {
