@@ -41,9 +41,11 @@ class TodosModel extends spyne.ChannelsBase {
     const filterUiBtns = R.complement(R.pathSatisfies(R.startsWith('title'), uiTypePath));
 
     const filterAllTodoEvents = R.anyPass([filterUiBtns, filterInputValue, filterTodoInput]);*/
-
+/*
     this.ui$ = this.getChannel('UI')
-			 .subscribe(p=>console.log('p is ',p));
+			 .subscribe(p=>console.log('p is ',p));*/
+
+
       /*.filter(filterAllTodoEvents)
       .map(p => {
         const obj = R.clone(this.localStorageObj);

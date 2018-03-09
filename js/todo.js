@@ -29,25 +29,42 @@ class Todo extends spyne.ViewStream {
     return [
     	['UPDATE_TODOS_EVENT', 'onTodosEvent'],
       ['DESTROY_TODOS_EVENT', 'onRemoveTodosEvent'],
-	    ['CHANNEL_UI_.*', 'onUIClick']
-/*
-	    ['UI_EVENT_CLICK', 'changeEditState'],
-*/
+	    ['CHANNEL_UI_CHANGE_EVENT', 'onUpdateCompleted'],
+		  ['CHANNEL_UI_DBLCLICK_EVENT', 'onUpdateEdits'],
+	    ['CHANNEL_UI_CLICK_EVENT', 'onUIClick'],
+	    ['CHANNEL_UI_KEYUP_EVENT', 'onEnterPressed']
     ];
   }
 
-  onUpdateTitle(item){
-  	console.log('on update title');
+
+
+  onUpdateTitle(txt){
+  	console.log('on update title ',txt,this.props.titleEl);
+  	this.props.titleEl.textContent = txt;
+  	this.onUpdateEdits(false);
 
   }
   onDestroy(item){
-  	this.sendChannelPayload('MODEL', {ubu:5});
-  	console.log('on destroy');
-  	//this.onDispose();
+  	this.onDispose();
+  }
+
+  onEnterPressed(item){
+  	const keyPressed = R.path(['event','key'], item);
+  	if (keyPressed==='Enter'){
+  		const titleText = R.path(['srcElement', 'el', 'value'], item);
+  		this.onUpdateTitle(titleText);
+	  }
+  }
+
+  onUpdateEdits(bool=true){
+  	console.log('update edits',)
+	  this.props.el$.toggleClass('editing', bool);
+
   }
 
   onUpdateCompleted(item){
   	console.log('completed updated');
+	  this.props.el$.toggleClass('completed', this.props.checkBox.checked);
   }
 
   onUIClick(item){
@@ -58,18 +75,16 @@ class Todo extends spyne.ViewStream {
 		  "title-dbclick-item" : this.onUpdateTitle.bind(this)
 	  };
 
-  	//	const fn = methodsHash[item.channelPayload.type];
-  	//	fn(item);
+  		const fn = methodsHash[item.channelPayload.type];
 
-
-
-
-  	//const itemId = item.srcElement.cid;
-	  console.log('isLocalEvent item ',item.channelPayload);
+  		if (fn!==undefined){
+  			fn(item)
+		  }
+		  console.log('isLocalEvent item ',item);
 
   }
 
-  onRemoveTodosEvent(p) {
+ /* onRemoveTodosEvent(p) {
 	  let isLocalUpdateFilter = R.contains(this.id, p.payload.id);
     if (isLocalUpdateFilter === true) {
       this.onDispose();
@@ -99,12 +114,14 @@ class Todo extends spyne.ViewStream {
   changeEditState(p) {
 	  let checkForLocalDblClick = p.data.cid === this.props.id && p.data.event === 'dblClick';
 		this.props.el$.toggleClass('editing', checkForLocalDblClick);
-  }
+  }*/
   updateCheckBox() {
     this.props.el$.query('input.toggle').el.checked = this.props.data.completed;
   }
   afterRender() {
 	  this.props.el$.toggleClass('completed', this.props.data.completed);
+	  this.props.checkBox = this.props.el$.query('input.toggle').el;
+	  this.props.titleEl = this.props.el$.query('div label').el;
     this.updateCheckBox();
     this.addChannel("UI");
 
