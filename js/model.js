@@ -26,12 +26,10 @@ class TodosModel extends spyne.ChannelsBase {
 	}
 
 	initializeStream() {
-		// CALLED AFTER STREAM IS REGISTERED FROM CHANNELBASECONTROLLER
-		this.sendStreamItem(this.channelActions.CHANNEL_MODEL_INIT_TODOS_EVENT,
-				this.localStorageObj);
+		this.sendStreamItem(this.channelActions.CHANNEL_MODEL_INIT_TODOS_EVENT, this.localStorageObj);
 	}
 
-	getRegisteredActionsArr() {
+	addRegisteredActions() {
 		return [
 			'CHANNEL_MODEL_INIT_TODOS_EVENT',
 		];
