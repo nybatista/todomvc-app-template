@@ -18,7 +18,7 @@ class Todo extends spyne.ViewStream {
 		];
 	}
 
-	addActionMethods() {
+	addActionListeners() {
 		return [
 			['CHANNEL_UI_CHANGE_EVENT', 'onUpdateCompleted'],
 			['CHANNEL_UI_DBLCLICK_EVENT', 'onUpdateEdits'],

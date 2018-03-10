@@ -25,9 +25,6 @@
 			super(props);
 		}
 
-		onChildDisposed(o, p) {
-			this.updateTextCount();
-		}
 
 		broadcastEvents() {
 			return [
@@ -37,7 +34,7 @@
 			];
 		}
 
-		addActionMethods() {
+		addActionListeners() {
 			return [
 				['CHANNEL_MODEL_INIT_TODOS_EVENT', 'onInitTodos'],
 				['CHANNEL_ROUTE_.*', 'onRouteChanged'],
@@ -80,6 +77,9 @@
 			const selectedItem = `[data-route=${route}]`;
 			this.props.el$.query('footer ul li a').
 					setActiveItem(selectedItem, 'selected');
+		}
+		onChildDisposed(o, p) {
+			this.updateTextCount();
 		}
 
 		updateTextCount() {
