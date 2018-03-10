@@ -1,7 +1,5 @@
 (function(window) {
   'use strict';
-  console.log('spyne is what ',spyne.SpyneApp);
-
   const spyneAppConfig = {
   	channels: {
   		WINDOW: {
@@ -26,13 +24,9 @@
     constructor(props = {}) {
 			props['el'] = document.querySelector('.todoapp');
       super(props);
-
-	    console.log('app is ',this);
-
     }
 
     onChildDisposed(o,p){
-    	console.log('child has been removed ',o);
     	this.updateTextCount()
     }
 
@@ -47,9 +41,6 @@
     addActionMethods() {
       return [
         ['CHANNEL_MODEL_INIT_TODOS_EVENT', 'onInitTodos'],
-        ['ADD_TODO_EVENT', 'addTodo'],
-        ['UPDATE_TODOS_EVENT', 'downStream'],
-        ['DESTROY_TODOS_EVENT', 'onModelAction'],
 		      ['CHANNEL_ROUTE_.*', 'onRouteChanged'],
 		      ['CHANNEL_UI.*', 'onUIClick']
       ];
@@ -62,50 +53,38 @@
     		const title = R.path(['srcElement', 'el', 'value'], item);
     		const completed = false;
     		this.addTodo({title, completed});
-
 	    }
 	    this.updateTextCount();
-				console.log('item ',item,type,isEnterKey);
     }
 
     onInitTodos(p) {
-    	console.log('on init todos ',p);
       const payload = p.channelPayload;
       const addTodo = data => this.appendView(new Todo({data}), '.todo-list');
       payload.forEach(addTodo);
     }
 
     addTodo(data) {
-   //   let data =d;
-     // data['title'] = data.val;
       this.appendView(new Todo({data}), '.todo-list');
       this.clearInput();
     }
 
     onRouteChanged(p) {
-    	console.log('channel route changed ',p);
       const selectedClass = R.defaultTo('', R.path(['channelPayload', 'routeStr']))(p);
-      this.props.el$.query('ul.todo-list')
-        .setClass(`todo-list ${selectedClass}`);
+      this.props.el$.query('ul.todo-list').setClass(`todo-list ${selectedClass}`);
       this.updateMenu(selectedClass);
     }
 
     updateMenu(r) {
     	const route = r === "" ? 'home' : r;
       const selectedItem = `[data-route=${route}]`;
-	     this.props.el$.query('footer ul li a')
-	     .setActiveItem(selectedItem, 'selected');
+	     this.props.el$.query('footer ul li a').setActiveItem(selectedItem, 'selected');
     }
 
     updateTextCount() {
       const num = document.querySelectorAll('.todo-list li').length;
-	    console.log('update count ', num);
-
 	    const itemsStr = num === 1 ? ' item left' : ' items left';
       this.props.el$.toggleClass('hide-elements', num === 0);
       this.counterText.el.innerHTML = `<strong>${num}</strong>${itemsStr}`;
-	    console.log('update count after ', num);
-
     }
 
     clearInput() {
@@ -126,7 +105,5 @@
   }
 
   Spyne.registerChannel('MODEL', new TodosModel());
-  const app = new App(/*{
-    el: document.querySelector('.todoapp')
-  }*/);
+  const app = new App();
 })(window);

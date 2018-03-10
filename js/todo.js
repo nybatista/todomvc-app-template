@@ -3,16 +3,9 @@ class Todo extends spyne.ViewStream {
     props.tagName = 'li';
     props.template = document.querySelector('.todo-tmpl');
     props['class'] = ['todos'];
-
-/*    R.when(
-      R.propEq('key', 'title'),
-      R.assoc('title', 'val')
-    )(props.data);*/
-
     props['dataset'] = props.data;
     super(props);
-  //  this.id = props.data.id;
-   // this.title = props.data.title;
+
   }
 
   broadcastEvents() {
@@ -27,16 +20,12 @@ class Todo extends spyne.ViewStream {
 
   addActionMethods() {
     return [
-    	['UPDATE_TODOS_EVENT', 'onTodosEvent'],
-      ['DESTROY_TODOS_EVENT', 'onRemoveTodosEvent'],
 	    ['CHANNEL_UI_CHANGE_EVENT', 'onUpdateCompleted'],
 		  ['CHANNEL_UI_DBLCLICK_EVENT', 'onUpdateEdits'],
 	    ['CHANNEL_UI_CLICK_EVENT', 'onUIClick'],
 	    ['CHANNEL_UI_KEYUP_EVENT', 'onEnterPressed']
     ];
   }
-
-
 
   onUpdateTitle(txt){
   	console.log('on update title ',txt,this.props.titleEl);
@@ -77,7 +66,6 @@ class Todo extends spyne.ViewStream {
   }
 
   onUIClick(item){
-
   	const methodsHash = {
 		  "destroy-item" : this.onDestroy.bind(this),
 		  "completed-item" : this.onUpdateCompleted.bind(this),
@@ -85,47 +73,10 @@ class Todo extends spyne.ViewStream {
 		  "destroy-all"    : this.onDestroyAllCompleted.bind(this),
 		  "title-dbclick-item" : this.onUpdateTitle.bind(this)
 	  };
-
   		const fn = methodsHash[item.channelPayload.type];
-
-  		if (fn!==undefined){
-  			fn(item)
-		  }
-		  console.log('isLocalEvent item ',item);
-
+   		fn(item)
   }
 
- /* onRemoveTodosEvent(p) {
-	  let isLocalUpdateFilter = R.contains(this.id, p.payload.id);
-    if (isLocalUpdateFilter === true) {
-      this.onDispose();
-    }
-  }
-
-  onTodosEvent(p) {
-    let isLocalUpdateFilter = R.contains(this.id, p.payload.id);
-    if (isLocalUpdateFilter === true) {
-      this.updateDom(p.payload.key, p.payload.val);
-    }
-  }
-
-  updateDom(k, v) {
-    const cList = this.props.el.classList;
-    if (k === 'completed') {
-      this.props.data.completed = v;
-      const classUpdate = v === true ? R.invoker(1, 'add') : R.invoker(1, 'remove');
-      classUpdate(k, cList);
-      this.updateCheckBox();
-    } else if (k === 'title') {
-      const label = this.props.el.querySelector('div label');
-      label.textContent = v;
-      cList.remove('editing');
-    }
-  }
-  changeEditState(p) {
-	  let checkForLocalDblClick = p.data.cid === this.props.id && p.data.event === 'dblClick';
-		this.props.el$.toggleClass('editing', checkForLocalDblClick);
-  }*/
   updateCheckBox() {
     this.props.el$.query('input.toggle').el.checked = this.props.data.completed;
   }
