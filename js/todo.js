@@ -4,15 +4,15 @@ class Todo extends spyne.ViewStream {
     props.template = document.querySelector('.todo-tmpl');
     props['class'] = ['todos'];
 
-    R.when(
+/*    R.when(
       R.propEq('key', 'title'),
       R.assoc('title', 'val')
-    )(props.data);
+    )(props.data);*/
 
     props['dataset'] = props.data;
     super(props);
-    this.id = props.data.id;
-    this.title = props.data.title;
+  //  this.id = props.data.id;
+   // this.title = props.data.title;
   }
 
   broadcastEvents() {

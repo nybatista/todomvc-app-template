@@ -12,10 +12,8 @@ class TodosModel extends spyne.ChannelsBase {
 
 	  this.getChannel("WINDOW")
 	  .filter(p=>p.action==="CHANNEL_WINDOW_BEFOREUNLOAD_EVENT")
-			  .subscribe(p=>{
-				localStorage.setItem('unloadTest', 'test val 3');
-			  console.log('window is ',p);
-	  });
+	      .map(this.createLocalStorageDataFromTodosEl)
+			  .subscribe(this.setStorage.bind(this));
 
 
 /*
@@ -121,6 +119,18 @@ class TodosModel extends spyne.ChannelsBase {
 
     this.ui$
       .subscribe(p => this.onSendStream(p));*/
+  }
+
+  createLocalStorageDataFromTodosEl(){
+	  const getDataFromEl = (acc, el) => {
+		  let title = String(el.innerText).replace(/\n/gm, "");
+		  let completed = el.querySelector('div input.toggle').checked;
+		  acc.push({title, completed});
+		  return acc;
+
+	  };
+	  let todoListEl = document.querySelectorAll('.todo-list li');
+	  return R.reduce(getDataFromEl, [], todoListEl);
   }
 
 
