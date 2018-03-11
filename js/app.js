@@ -66,7 +66,7 @@
 
 		onRouteChanged(p) {
 			const selectedClass = R.defaultTo('',
-					R.path(['channelPayload', 'routeStr']))(p);
+					R.path(['channelPayload', 'routeValue']))(p);
 			this.props.el$.query('ul.todo-list').
 					setClass(`todo-list ${selectedClass}`);
 			this.updateMenu(selectedClass);
