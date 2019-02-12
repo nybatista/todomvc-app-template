@@ -47,8 +47,10 @@
 			const isEnterKey = R.pathEq(['event', 'key'], 'Enter', item);
 			if (type === 'title-new' && isEnterKey === true) {
 				const title = R.path(['srcElement', 'el', 'value'], item);
-				const completed = false;
-				this.addTodo({title, completed});
+				if (title.length>0) {
+					const completed = false;
+				  this.addTodo({title, completed});
+				}
 			}
 			this.updateTextCount();
 		}
@@ -57,6 +59,7 @@
 			const payload = p.channelPayload;
 			const addTodo = data => this.appendView(new Todo({data}), '.todo-list');
 			payload.forEach(addTodo);
+			this.updateTextCount();
 		}
 
 		addTodo(data) {
