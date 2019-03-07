@@ -1,12 +1,11 @@
 class TodosModel extends spyne.ChannelsBase {
-	constructor(props = {}) {
+	constructor(name, props = {}) {
 		const R = window.R;
-		super();
-		this.props.name = 'MODEL';
+		props.sendLastPayload = true;
+		super(name, props);
 		this.STORAGE_KEY = 'todos-spyne';
 		this.localStorageObj = this.getStorageItems();
-		this.observer$ = new rxjs.BehaviorSubject();
-		this.getChannel('WINDOW').pipe(
+		this.getChannel('CHANNEL_WINDOW').pipe(
 				rxjs.operators.filter(p => p.action === 'CHANNEL_WINDOW_BEFOREUNLOAD_EVENT'),
 				rxjs.operators.map(this.createLocalStorageDataFromTodosEl)).
 				subscribe(this.setStorage.bind(this));

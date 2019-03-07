@@ -9,8 +9,8 @@
 			ROUTE: {
 				isHash: true,
 				routes: {
-					route: {
-						keyword: 'hashVal',
+					routePath: {
+						routeName: 'hashVal',
 					},
 				},
 			},
@@ -35,22 +35,25 @@
 		}
 
 		addActionListeners() {
+			let actionFilter = this.createActionFilter(undefined, {
+						type: R.contains(R.__, ['title-new']),
+						event: R.propEq('key', 'Enter')
+					}
+			);
+
 			return [
 				['CHANNEL_MODEL_INIT_TODOS_EVENT', 'onInitTodos'],
 				['CHANNEL_ROUTE_.*', 'onRouteChanged'],
-				['CHANNEL_UI.*', 'onUIClick'],
+				['CHANNEL_UI_KEYUP_EVENT', 'onAddNewTodo', actionFilter],
+				['CHANNEL_UI_CLICK', 'updateTextCount'],
 			];
 		}
 
-		onUIClick(item) {
-			const type = R.path(['channelPayload', 'type'], item);
-			const isEnterKey = R.pathEq(['event', 'key'], 'Enter', item);
-			if (type === 'title-new' && isEnterKey === true) {
-				const title = R.path(['srcElement', 'el', 'value'], item);
-				if (title.length>0) {
-					const completed = false;
-				  this.addTodo({title, completed});
-				}
+		onAddNewTodo(item) {
+			const title = R.path(['srcElement', 'el', 'value'], item);
+			if (title.length>0) {
+				const completed = false;
+			  this.addTodo({title, completed});
 			}
 			this.updateTextCount();
 		}
@@ -70,7 +73,7 @@
 		onRouteChanged(p) {
 			const selectedClass = R.defaultTo('',
 					R.path(['channelPayload', 'routeValue']))(p);
-			this.props.el$.query('ul.todo-list').
+			this.props.el$('ul.todo-list').
 					setClass(`todo-list ${selectedClass}`);
 			this.updateMenu(selectedClass);
 		}
@@ -78,7 +81,7 @@
 		updateMenu(r) {
 			const route = r === '' ? 'home' : r;
 			const selectedItem = `[data-route=${route}]`;
-			this.props.el$.query('footer ul li a').
+			this.props.el$('footer ul li a').
 					setActiveItem(selectedItem, 'selected');
 		}
 		onChildDisposed(o, p) {
@@ -88,12 +91,12 @@
 		updateTextCount() {
 			const num = document.querySelectorAll('.todo-list li').length;
 			const itemsStr = num === 1 ? ' item left' : ' items left';
-			this.props.el$.toggleClass('hide-elements', num === 0);
+			this.props.el$().toggleClass('hide-elements', num === 0);
 			this.counterText.el.innerHTML = `<strong>${num}</strong>${itemsStr}`;
 		}
 
 		clearInput() {
-			this.props.el$.query('.new-todo').el.value = '';
+			this.props.el$('.new-todo').el.value = '';
 		}
 
 		onModelAction(p) {
@@ -101,14 +104,14 @@
 		}
 
 		afterRender() {
-			this.counterText = this.props.el$.query('footer span.todo-count');
-			this.addChannel('UI');
-			this.addChannel('ROUTE');
+			this.counterText = this.props.el$('footer span.todo-count');
+			this.addChannel('CHANNEL_UI');
+			this.addChannel('CHANNEL_ROUTE');
 			this.addChannel('MODEL');
 
 		}
 	}
 
-	Spyne.registerChannel('MODEL', new TodosModel());
+	Spyne.registerChannel(new TodosModel('MODEL'));
 	const app = new App();
 })(window);

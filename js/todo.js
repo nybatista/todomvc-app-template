@@ -34,7 +34,7 @@ class Todo extends spyne.ViewStream {
 	}
 
 	onDestroy(item) {
-		this.onDispose();
+		this.disposeViewStreamChain();
 	}
 
 	onEnterPressed(item) {
@@ -46,12 +46,12 @@ class Todo extends spyne.ViewStream {
 	}
 
 	onUpdateEdits(bool = true) {
-		this.props.el$.toggleClass('editing', bool);
+		this.props.el$().toggleClass('editing', bool);
 	}
 
 	onDestroyAllCompleted(item) {
 		if (this.props.checkBox.checked === true) {
-			this.onDispose();
+			this.disposeViewStreamChain();
 		}
 	}
 
@@ -61,7 +61,7 @@ class Todo extends spyne.ViewStream {
 	}
 
 	onUpdateCompleted(item) {
-		this.props.el$.toggleClass('completed', this.props.checkBox.checked);
+		this.props.el$().toggleClass('completed', this.props.checkBox.checked);
 	}
 
 	onUIClick(item) {
@@ -72,20 +72,20 @@ class Todo extends spyne.ViewStream {
 			'destroy-all': this.onDestroyAllCompleted.bind(this),
 			'title-dbclick-item': this.onUpdateTitle.bind(this),
 		};
-		const fn = methodsHash[item.channelPayload.type];
+		const fn = methodsHash[item.props().type];
 		fn(item);
 	}
 
 	updateCheckBox() {
-		this.props.el$.query('input.toggle').el.checked = this.props.data.completed;
+		this.props.el$('input.toggle').el.checked = this.props.data.completed;
 	}
 
 	afterRender() {
-		this.props.el$.toggleClass('completed', this.props.data.completed);
-		this.props.checkBox = this.props.el$.query('input.toggle').el;
-		this.props.titleEl = this.props.el$.query('div label').el;
+		this.props.el$().toggleClass('completed', this.props.data.completed);
+		this.props.checkBox = this.props.el$('input.toggle').el;
+		this.props.titleEl = this.props.el$('div label').el;
 		this.updateCheckBox();
-		this.addChannel('UI');
+		this.addChannel('CHANNEL_UI');
 
 	}
 }
